@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %} Encuesta {{ encuestas.curso }} {% endblock %}
+{% block content %} 
+{% load bootstrap %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-1"></div>
+			<div class="col-lg-10">
+
+				<form action="" method="POST">
+					{% csrf_token %}
+					<table class="table table-striped">
+						<tr class="info">
+							<td>Encuestador </td>
+							<td>Encuestado</td>
+						</tr>
+						<tr>
+							<td>
+								{% if Encuestador.user == user %}
+									<select class="form-control" id="encuestados" name="elEncuestador" >
+									<option>{{ NombreEncuestador }}</option> 
+								{% endif %}
+							</td>
+							<td>
+								<select class="form-control" id="encuestados" name="elEncuestado" >
+								{% for cadaEncuestado in todosLosEncuestados %}
+									<option >{{ cadaEncuestado }}</option>
+								{% endfor %}
+						      </select>
+							</td>
+						</tr>
+					</table>
+					{% for e in elecciones %}
+						{{ e|bootstrap }}
+					{% endfor %}
+					<p><input type="submit" value="Guardar">
+					<input type="reset" value="Borrar">
+					</p>
+				</form>
+		</div>
+		<div class="col-lg-1"></div>
+	</div>
+</div>
+{% endblock%}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %} Agregar alumnos a grupo {% endblock %}
+{% block content %} 
+
+	{% if Cursos %}
+		<form  action="" method="POST">
+				{% csrf_token %}
+		    <div class="form-group">
+		     	<label >Cursos:</label>
+		      	<select class="form-control" id="el_Curso" name="elCurso" >
+				{% for c in Cursos %}
+					{% if c.id == idCursoInicial %}
+		       			<option selected>{{ c }}</option>
+					{% else %}
+						<option >{{ c }}</option>
+					{% endif %}
+				{% endfor %}
+		      </select>
+		      <br>
+		      <p><input type="submit" value="Aceptar"></p>
+		    </div>
+		</form>
+
+		{% if Grupos %}
+			<form  action="" method="POST">
+				<input type='hidden' name='elCurso_oculto' value={{idCursoInicial}} />
+
+					{% csrf_token %}
+			    <div class="form-group">
+			    	<label >Grupos:</label>
+			      	<select class="form-control" id="el_Grupo" name="elGrupo">
+					{% for g in Grupos %}
+						{% if g.id == idGrupoInicial %} 
+			       			<option selected>{{ g.nombre }}</option>
+						{% else %}
+							<option >{{ g.nombre }}</option>
+						{% endif %}
+					{% endfor %}
+			      </select>
+			      <br>
+			      <p><input type="submit" value="Aceptar"></p>
+			    </div>
+			</form>
+			{% if Alumnos %}
+
+			<form  action="" method="POST">.
+				<input type='hidden' name='elCurso_oculto' value={{idCursoInicial}} />
+				<input type='hidden' name='elGrupo_oculto' value={{idGrupoInicial}} />
+					{% csrf_token %}
+			    <div class="form-group">
+			    	<label >Alumnos:</label>
+			    	<select class="form-control" name="losAlumnos" multiple>
+			    		{% for cadaAlumno in Alumnos %}
+		                <option value="{{ cadaAlumno.id }}">{{ cadaAlumno }}</option>
+		                {% endfor %}
+		            </select>
+
+			      <br>
+			      <p><input type="submit" value="Aceptar"></p>
+			    </div>
+			</form>	
+			{% else %}
+				No existen Alumnos
+			{% endif %} 	
+		{% else %}
+			No existen Grupos
+		{% endif %} 
+
+	{% else %}
+		No existen cursos
+	{% endif %}
+{{info}}
+	
+{% endblock%}

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>{% block title %} {% endblock %}</title>
+	<link rel="stylesheet"  href="/media/bootstrap/css/bootstrap.css">
+	<link rel="stylesheet"  href="/media/bootstrap/css/bootstrap-responsive.css">
+	<script src="/media/js/jquery.js"></script>
+	<script src="/media/bootstrap/js/bootstrap.js"></script>
+	<style type="text/css">
+		body{
+			padding-top:70px;
+			padding-bottom: 40px;
+
+		}
+		.margenFormulario{
+			margin-left:240px;
+			margin-right:240px;
+		}
+		.ScrollStyle{
+		    max-height: 250px;
+		    overflow-y: scroll;
+		}
+
+	</style>
+</head>
+<body>
+
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			{% if user.is_authenticated %}	
+			<div class="container-fluid">
+			    <div class="navbar-header">
+			      <a class="navbar-brand" href="/">MANUEL</a>
+			 	</div>
+			     	<ul class="nav navbar-nav">
+			     		{% if user.is_superuser %}
+			     			<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Encuestas <b class="caret"></b></a>
+					        	<ul class="dropdown-menu">
+					        		<li><a href="{% url 'vista_agregar_encuesta' %} ">Nueva Encuesta</a></li>
+					        		<li class="dropdown-submenu">
+						        		<a href="#">Seleccionar</a>
+						        		<ul class="dropdown-menu">
+						        			{% if Encuestas %}
+						        				{% for cadaEncuesta in Encuestas %}
+						        					<li><a href="{% url 'vista_almacenar_encuesta_sesion' cadaEncuesta.id %} ">{{ cadaEncuesta }} </a></li>
+						        				{% endfor %}
+						        			{% endif %}
+						        		</ul>
+					        		</li>
+					        		<li class="nav-divider"></li>
+					        		<li><a href="{% url 'vista_editar_encuestas_con_preguntas' %} ">Editar Encuesta</a></li>
+					        		<li><a href="{% url 'vista_tipo_encuesta' %} " role="button" aria-haspopup="true" aria-expanded="false">Tipo Encuesta</a></li>
+					        	</ul>
+							</li>
+							<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Usuarios <b class="caret"></b></a>
+					        	<ul class="dropdown-menu">
+					        		<li><a href="{% url 'vista_agregar_profesor' %}">Agregar Profesor</a></li>
+						        	<li><a href="{% url 'vista_agregar_alumno' %}">Agregar Alumno</a></li>
+					        	</ul>
+							</li>
+							<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Curso <b class="caret"></b></a>
+					        	<ul class="dropdown-menu">
+					        		<li>
+						        		<a href="{% url 'vista_agregar_curso' %}">Crear Curso </a>
+						        		
+					        		</li>
+					        	</ul>
+							</li>
+
+
+						{% else %}
+
+						{% endif %} 
+						{% if user.profesor %}
+							<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Encuestas <b class="caret"></b></a>
+					        	<ul class="dropdown-menu">
+					        		<li><a href="{% url 'vista_crear_encuesta_profesor' %} ">Crear Encuesta</a></li>
+					        		<li class="nav-divider"></li>
+					        		<li><a href="{% url 'vista_revisar_encuestas' %} ">Revisar Encuesta</a></li>
+					        	</ul>
+					        </li>
+					        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Cursos <b class="caret"></b></a>
+					        	<ul class="dropdown-menu">
+					        		<li class="dropdown-submenu">
+						        		<a href="#">Agregar Alumnos un Curso </a>
+						        		<ul class="dropdown-menu">
+						        			{% if Cursos %}
+						        				{% for cadaCurso in Cursos %}
+						        					<li><a href="{% url 'vista_almacenar_curso_sesion' cadaCurso.id %} ">{{ cadaCurso }} </a></li>
+						        				{% endfor %}
+						        			{% endif %}
+						        		</ul>
+						        	</li>			
+					        	</ul>
+					        </li>
+					        <li><a href="{% url 'vista_datos_enviar_encuesta_curso' %} " role="button" aria-haspopup="true" aria-expanded="false">Enviar Encuesta</a>
+					        </li>
+						{% endif %}
+						{% if user.alumno %}
+							<li><a href="{% url 'vista_nuevo_eleccion_encuesta_alumno' %}">Encuestas por responder</a></li>
+							<li><a href="{% url 'vista_mostrar_encuestas_finalizadas' %} ">FeedBack</a></li>
+							
+						{% endif %}
+
+
+					</ul>
+					<div class="navbar-text pull-right">
+
+						{% if user.is_staff %}
+							{{user.username}}
+						{% else %}
+							{{user.alumno.nombre}}{{user.profesor.nombre}} {{user.alumno.apellido}}{{user.profesor.apellido}}
+						{% endif %}
+						<a href="{% url 'vista_editar_perfil' %}"  <span class="glyphicon glyphicon-edit" ></span></a>
+						
+						&nbsp Salir<a href="{% url 'vista_logout' %}"  <span class="glyphicon glyphicon-log-out" ></span></a></div>
+
+					<p class="navbar-text pull-right">
+					{% if user.profesor %}
+					Encuesta Seleccionada:
+					{% if request.session.nombreEncuestaSeleccionada %}
+
+						{{ request.session.nombreEncuestaSeleccionada }}
+	
+
+					{% else %}
+						No ha seleccionado Encuesta
+					{% endif %}</p>
+					<p class="navbar-text pull-right">
+					Curso Seleccionado:
+					{% if request.session.nombreCursoSeleccionado %}
+
+						{{ request.session.nombreCursoSeleccionado }}
+	
+
+					{% else %}
+						No ha seleccionado Curso
+					{% endif %}</p>
+					{% endif %}
+			</div>
+			</div>
+			{% else %}
+				<p class='navbar-text'  style = "text-align: center; font-size: 24px; color:white;">
+				Bienvenido a MANUEL</p>
+				</p>
+			{% endif %}	
+		</div>	
+	</nav> 
+
+{% block content %}
+{% endblock %}
+</body>
+</html>

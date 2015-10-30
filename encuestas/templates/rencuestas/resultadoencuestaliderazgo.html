@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %} Resultados Encuesta Liderazgo {% endblock %}
+{% block content %} 
+{% load bootstrap %}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-1"></div>
+			<div class="col-lg-10">
+
+				<table class="table">
+					<tr class="active">
+					  <td>Nombre Alumno</td>
+					  <td>Autoevaluación</td>
+					  <td>Nombre Jefe Grupo</td>
+					  <td>Evaluación</td>
+					</tr>
+
+					{% if Tabla %}
+						<tr>{% for valor in Tabla.itervalues %}
+								{% for cadaValor in valor %}
+										<td >{{ cadaValor }}</td>
+								{% endfor %}
+							
+						</tr>{% endfor %}
+						
+					{% endif %}
+
+				</table>
+
+			</div>
+		<div class="col-lg-1"></div>
+	</div>
+</div>
+{% endblock%}

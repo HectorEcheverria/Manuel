@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %} Editar Usuario {% endblock %}
+{% block content %} 	
+{% load bootstrap %}
+<div class="container-fluid margenFormulario" >		
+<form action="" enctype='multipart/form-data' method="POST">
+	{% csrf_token %}
+	<table class="table table-striped">
+	{{ Perfil|bootstrap }}
+	</table>
+	<p><input class="btn btn-primary" type="submit" value="Guardar">
+	<input class="btn btn-danger" type="reset" value="Borrar">
+	</p>
+</form>
+	<br>
+</div>
+{% endblock%}

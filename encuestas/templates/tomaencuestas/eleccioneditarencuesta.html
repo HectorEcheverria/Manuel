@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %} Editar Encuestas {% endblock %}
+{% block content %} 
+
+	{% if Cursos %}
+		<form  action="" method="POST">
+				{% csrf_token %}
+		    <div class="form-group">
+		     	<label >Cursos:</label>
+		      	<select class="form-control" id="el_Curso" name="elCurso" >
+				{% for c in Cursos %}
+					{% if c.id == idCursoInicial %}
+		       			<option selected>{{ c }}</option>
+					{% else %}
+						<option >{{ c }}</option>
+					{% endif %}
+				{% endfor %}
+		      </select>
+		      <br>
+		      <p><input type="submit" value="Aceptar"></p>
+		    </div>
+		</form>
+
+		{% if Encuestas %}
+		<form  action="" method="POST">.
+			<input type='hidden' name='elCurso_oculto' value={{idCursoInicial}} />
+				{% csrf_token %}
+		    <div class="form-group">
+		    	<label >Encuestas:</label>
+		      	<select class="form-control" id="el_Grupo" name="laEncuesta">
+				{% for e in Encuestas %}
+		       		<option>{{ e }}</option>
+				{% endfor %}
+		      </select>
+		      <br>
+		      <p><input type="submit" value="Aceptar"></p>
+		    </div>
+		</form>	
+		{% else %}
+			No existen Grupos
+		{% endif %} 	
+	{% else %}
+		No existen cursos
+	{% endif %}
+{{info}}
+	
+{% endblock%}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %} Agregar Encuesta {% endblock %}
+{% block content %} 
+{% load bootstrap %}		
+<div class="container-fluid margenFormulario" >
+<form action="" method="POST">
+	{% csrf_token %}
+	<table class="table table-striped">
+	{{ FormularioEncuesta|bootstrap }} 
+	{{ FormularioPregunta|bootstrap }} 
+	<!-- <a href="{% url 'vista_agregar_pregunta' %}?next={{request.path}}"><button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus" ></span>Agregar Pregunta</button></a> -->
+	  
+	</table>
+	<p><input class="btn btn-primary" type="submit" value="Guardar">
+	<input class="btn btn-danger" type="reset" value="Borrar">
+	</p>
+</form>
+	<br>
+</div>
+{% endblock %}

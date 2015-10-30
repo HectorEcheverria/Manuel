@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %} Crear Encuesta por Curso {% endblock %}
+{% block content %} 
+{% load bootstrap %}
+
+
+<div class="container-fluid" >	
+<div class="row">
+<div class="col-lg-1"></div>
+{% if Alumnos  %}
+<div class="col-lg-6">
+<div class="container-fluid">
+<label> Filtrar por:</label>
+<form class="navbar-search" method="POST">
+{% csrf_token %}
+<input type="text" class="search-query" placeholder="Buscar por" name="buscado"/>
+<input type='hidden' name='idGrupoOculto' value={{idGrupoSeleccionado}} />
+<button class="btn btn-primary" type="submit"><i class="glyphicon glyphicon-search" ></i></button>
+
+
+</form>
+
+</div>
+<form  action="" method="POST">
+{% csrf_token %}
+<div class="form-group ScrollStyle">
+<label >Alumnos:</label>
+<table class="table">
+<tr class="active">
+<td> </td>
+<td>Nombre</td>
+<td>RUT</td>
+<td>Email</td>
+</tr>
+{% for cadaAlumno in Alumnos %}
+<tr>
+<td><input type="checkbox" id="blankCheckbox" name="{{cadaAlumno.id}}" value="{{cadaAlumno.id}}"></td>
+<td>{{cadaAlumno}}</td>
+<td>{{cadaAlumno.rut}}</td>
+<td>{{cadaAlumno.email}}</td>
+</tr>
+{% endfor %}
+</table>
+</div> 
+<p><input class="btn btn-primary" type="submit" value="Integrar alumnos al curso"><input class="btn btn-danger" type="submit" value="Eliminar del curso" name="Eliminar"></p>
+</div>	    	
+<div class="col-lg-4">
+<div class="form-group">
+<label >Grupos:</label>
+<table class="table">
+<select class="form-control" id="el_Grupo" name="elGrupo">
+{% for cadaGrupo in Grupos %}
+{% ifequal cadaGrupo.id idGrupoSeleccionado %} 
+		<option value="{{cadaGrupo.id}}" selected>{{cadaGrupo}}</option>
+{% else %}
+	<option value="{{cadaGrupo.id}}">{{cadaGrupo}}</option>
+{% endifequal %}
+
+{% endfor %}
+</select>
+</table>
+</div> 
+<input class="btn btn-primary" type="submit" value="Cargar Integrantes del grupo">
+<a href="{% url 'vista_agregar_grupo' %}?next={{request.path}}">
+<button type="button" class="btn btn-success">
+<span class="glyphicon glyphicon-plus" ></span>Agregar Grupo
+</button></a>
+
+
+{% if idGrupoSeleccionado %}
+<a href="{% url 'vista_agregar_jefe_de_grupo' idGrupoSeleccionado %}?next={{request.path}}">
+<button type="button" class="btn btn-warning"><span class="glyphicon glyphicon-plus"></span>Agregar Jefe de Grupo
+</button></a>
+{% endif %}
+<div class="ScrollStyle">
+
+<label>Integrantes</label>
+<ol>
+{% for cadaIntegrante in Integrantes %}
+<li>{{ cadaIntegrante }}</li>
+{% endfor %}
+</ol>
+
+</div>
+</div>
+<div class="col-lg-1"></div>
+{% else %}
+No existen cursos y/o encuestas para crear
+{% endif %}
+{{info}}
+
+
+</form>
+
+</div>
+</div>
+{% endblock%}

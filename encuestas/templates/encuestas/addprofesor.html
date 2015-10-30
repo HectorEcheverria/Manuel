@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %} Agregar Profesor {% endblock %}
+{% block content %} 	
+{% load bootstrap %}
+<div class="container-fluid margenFormulario" >	
+<form action="" method="POST">
+	{% csrf_token %}
+	<table class="table table-striped">
+	{{ form|bootstrap }}
+	</table>
+	<p><input class="btn btn-primary" type="submit" value="Guardar">
+	<input class="btn btn-danger" type="reset" value="Borrar">
+	</p>
+</form>
+	<br>{{ informacion }}
+</div>
+{% endblock%}

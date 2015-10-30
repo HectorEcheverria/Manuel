@@ -1,0 +1,39 @@
+{% extends 'base.html'%}
+{% block title %} Lista de Preguntas {% endblock %}
+{% block content %} 
+	{% if preguntas %}
+		{% for p in preguntas %}
+			<p><b>Nombre de la pregunta:</b> {{ p.pregunta }}</p>
+			<table class="table table-striped">
+				<thead>
+				<tr>
+					<th width="25%">Puntaje</th>
+					<th width="75%">Pregunta</th>
+				</tr>
+				</thead>
+				<tr>
+					<td>1</td>
+					<td>{{p.respuesta1}}</td>
+				</tr>
+				<tr>
+					<td>2</td>
+					<td>{{p.respuesta2}}</td>
+				</tr>
+				<tr>
+					<td>3</td>
+					<td>{{p.respuesta3}}</td>
+				</tr>
+				<tr>
+					<td>4</td>
+					<td>{{p.respuesta4}}</td>
+				</tr>
+				<tr>
+					<td>5</td>
+					<td>{{p.respuesta5}}</td>
+				</tr>
+			</table>
+		{% endfor %}
+	{% else %}
+		No existen preguntas
+	{% endif %}
+{% endblock%}

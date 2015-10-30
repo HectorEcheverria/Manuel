@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %} Resultados encuestas por curso{% endblock %}
+{% block content %} 
+<div class="container-fluid row" >
+	<div class="col-lg-1"></div>
+	<div class="col-lg-5">	
+		<div class="container-fluid " >
+		{% if Cursos %}
+			<form  action="" method="POST">
+					{% csrf_token %}
+			    <div class="form-group">
+			     	<label >Cursos:</label>
+			      	<select class="form-control" id="el_Curso" name="elCurso" >
+					{% for c in Cursos %}
+						{% if c.id == idCursoInicial %}
+			       			<option value="{{c.id}}" selected>{{ c }}</option>
+						{% else %}
+							<option value="{{c.id}}">{{ c }}</option>
+						{% endif %}
+					{% endfor %}
+			      </select>
+			      <br>
+			      <p><input class="btn btn-primary" type="submit" value="Aceptar"></p>
+			    </div>
+			</form>
+		</div>
+	</div>
+
+	<div class="col-lg-5">
+		{% if TiposEncuesta %}
+			<form  action="" method="POST">
+				{% csrf_token %}
+				<input type='hidden' name='elCurso' value={{ idCursoInicial }} >
+						
+					<div class="form-group">
+						<label >Tipos de Encuestas:</label>
+						<select class="form-control" id="el_tipo_Encuesta" name="elTipoEncuesta" >
+						{% for t in TiposEncuesta %}
+							{% if t.id == idTipoInicial %}
+								<option value="{{t.id}}" selected>{{ t }}</option>
+							{% else %}
+								<option value="{{t.id}}">{{ t }}</option>
+							{% endif %}
+						{% endfor %}
+						</select>
+						<br>
+						<p><input class="btn btn-primary" type="submit" value="Aceptar"></p>
+					</div>
+			</form>
+		{% endif %}
+	</div>
+		
+	<div class="col-lg-1"></div>
+</div>
+<div class="container-fluid row" >
+	<div class="col-lg-1">	</div>
+	<div class="col-lg-5">
+		{% if EncuestasTerminadas and Encuesta360 == True %}
+		
+			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+				<a  class="list-group-item active">	Encuestas Terminadas (Revisar) </a>
+				{% for cadaEncuestaTerminada in EncuestasTerminadas %}
+					<div class="panel panel-default">
+					    <div class="panel-heading" role="tab" id="headingOne">
+					      <h4 class="panel-title">
+					        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{cadaEncuestaTerminada.id}}" aria-expanded="false" aria-controls="collapse{{cadaEncuestaTerminada.id}}" class="collapsed">
+					         {{ cadaEncuestaTerminada }}
+					        </a>
+					      </h4>
+					    </div>
+					    <div id="collapse{{cadaEncuestaTerminada.id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{cadaEncuestaTerminada.id}}">
+					      <div class="panel-body">
+							{% if GruposDelCurso %}
+								{% for cadaGrupo in GruposDelCurso %}
+							        <a href="{% url 'vista_datos_grafico_profesor' cadaEncuestaTerminada.id cadaGrupo.id %} " class="list-group-item ">
+							        	 {{ cadaGrupo }}
+							    	</a>
+							    	{% endfor %}
+							{% endif %}
+					      </div>
+					    </div>
+					   <a href="{% url 'vista_datos_grafico_profesor_curso' cadaEncuestaTerminada.id idCursoInicial %} " class="list-group-item btn btn-success">
+							Revisar por curso
+					   	</a>
+					</div>
+				{% endfor %}
+			</div>
+		{% elif not EncuestaTerminadas  and Encuesta360 == True %}
+		<label> No existen encuestas de liderazgo terminadas</label>	
+		{% endif %}   	
+
+
+		{% if EncuestasTerminadas and Encuesta360 == False %}
+			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+				<a  class="list-group-item active">	Encuestas Terminadas (Revisar)	</a>
+				{% for cadaEncuestaTerminada in EncuestasTerminadas %}
+				<div class="panel panel-default">
+					    <div class="panel-heading" role="tabpanel" id="headingOne">
+					      <h4 class="panel-title">
+					       <a href="{% url 'vista_encuesta_liderago' cadaEncuestaTerminada.id cadaEncuestaTerminada.curso.id %} " class="list-group-item ">
+							{{ cadaEncuestaTerminada }}
+							</a>
+					      </h4>
+					    </div>
+					</div>
+				{% endfor %}
+			</div>
+		{% elif not EncuestaTerminadas  and Encuesta360 == False %}
+		<label> No existen encuestas de liderazgo terminadas</label>
+		{% endif %}
+
+		
+		
+	</div>	
+
+	<div class="col-lg-5">
+		{% if DatosEncuestasNoTerminadas %}
+			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+				<a  class="list-group-item active">
+		        	Encuestas no terminadas (Enviar)
+		    	</a>
+				{% for llave,valor in DatosEncuestasNoTerminadas.iteritems %}		
+				<div class="panel panel-default">
+				    <div class="panel-heading" role="tab" id="headingOne">
+				      <h4 class="panel-title">
+				        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{llave.id}}" aria-expanded="false" aria-controls="collapse{{llave.id}}" class="collapsed">
+				         {{ llave }}
+				        </a>
+				      </h4>
+				    </div>
+				    <div id="collapse{{llave.id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{llave.id}}">
+				      
+						{% for alumno,porcentaje in valor.iteritems %}
+						<div class="panel-body">
+					        <a href="#" class="list-group-item ">
+					        	 {{ alumno }} le falta un {{ porcentaje }}%
+					    	</a>
+					    	<a class="btn btn-primary" role="button" data-toggle="collapse" href="#{{ llave.id }}{{alumno.id}}" aria-expanded="false" aria-controls="collapseEnvio">
+							Enviar correo
+							</a>
+							<div class="collapse" id="{{ llave.id }}{{alumno.id}}">
+								<div class="well">
+								<form action="" method="POST">
+									{% csrf_token %}
+									<label>Mensaje</label>
+									<input type="text" class="form-control" name="mensaje" value="Usted no ha terminado de responder la encuesta 360">
+									<input type='hidden' name='elAlumno' value={{ alumno.id }} >
+									<input type="submit" class="btn btn-success" value="Enviar">
+								</form>						  	
+								</div>
+							</div>
+
+						</div>
+						
+						{% endfor %}
+				     
+				     
+				    </div>
+				    <form action="" method="POST">
+						{% csrf_token %}
+						<input type='hidden' name='laEncuesta' value={{ llave.id }} >
+						<input type='hidden' name='elCurso' value={{ idCursoInicial }} >
+						<input type="submit" class="btn btn-success" value="Enviar a todos los almunos faltantes">
+					</form>	
+				</div>
+				{% endfor %}
+			</div>	
+	{% else %}
+	<label>	No existen Encuestas No Terminadas</label>
+	{% endif %} 
+
+	{% else %}
+		No existen cursos
+	{% endif %}
+</div>
+<div class="col-lg-1">
+</div>
+</div>
+{% endblock%}

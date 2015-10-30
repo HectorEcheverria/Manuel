@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %} Feedback Encuestas {% endblock %}
+{% block content %} 
+{% load bootstrap %}
+<form action="" method="POST">
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-1"></div>
+			<div class="col-lg-5">
+				<img src="data:image/png;base64,{{ grafico }}"/>
+			</div>
+			<div class="col-lg-3">
+			{% if Preguntas %}
+				{% if Grupos %}
+					<div class="table">
+						<table class="table table-striped">
+							<tr>
+								<td class="bg-primary"><label>Pregunta</label></td>
+								<td class="bg-primary"><label>Promedio curso</label></td>
+							</tr>
+							{% for cadaPregunta,cadaPromedio in Preguntas %}
+							<tr>
+								<td>{{ forloop.counter }}.-{{cadaPregunta}}</td>
+								<td>{{cadaPromedio}}</td>
+							</tr>
+							{% endfor %}
+
+						</table>
+					</div> 
+				{% else %}
+					<div class="table">
+						<table class="table table-striped">
+							<tr>
+								<td class="bg-primary"><label>Pregunta</label></td>
+								<td class="bg-primary"><label>Promedio curso</label></td>
+								<td class="bg-primary"><label>Promedio alumno</label></td>
+							</tr>
+							{% for cadaPregunta,cadaPromedio,cadaPromedioAlumno in Preguntas %}
+							<tr>
+								<td>{{ forloop.counter }}.-{{cadaPregunta}}</td>
+								<td>{{cadaPromedio}}</td>
+								<td>{{cadaPromedioAlumno}}</td>
+							</tr>
+							{% endfor %}
+
+						</table>
+					</div> 
+				{% endif %}
+			{% endif %}
+				{% if Grupos  %}
+					{% csrf_token %}
+					<div class="form-group ScrollStyle">
+					    <label >Grupos:</label>
+					    <table class="table">
+							<tr class="bg-primary">
+							  <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></td>
+							  <td><label>Nombre</label></td>
+							</tr>
+							{% for cadaGrupo in Grupos %}
+							<tr>
+								<td><input type="checkbox" id="blankCheckbox" name="{{cadaGrupo.id}}" value="{{cadaGrupo.id}}"></td>
+								<td>{{cadaGrupo}}</td>
+							</tr>
+							 {% endfor %}
+						</table>
+						<input class="btn btn-primary" type="submit" value="Agregar grupos al gráfico">
+					</div>
+				{% endif %}
+				
+			</div>
+		<div class="col-lg-1"></div>
+	</div>
+</div>
+<div class="col-lg-1"></div>
+	<input type='button' class='btn btn-info' value='Volver atrás' name= 'btvolver' onclick='history.back()' />
+</form>
+{% endblock%}

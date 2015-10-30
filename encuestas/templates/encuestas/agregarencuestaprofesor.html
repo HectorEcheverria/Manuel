@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %} Crear Encuesta por Curso {% endblock %}
+{% block content %} 
+{% load bootstrap %}
+<div class="container-fluid margenFormulario" >	
+	{% if Cursos and Encuestas %}
+		<form  action="" method="POST">
+				{% csrf_token %}
+		    <div class="form-group">
+		     	<label >Cursos:</label>
+		      	<select class="form-control" id="el_Curso" name="elCurso" >
+				{% for c in Cursos %}
+					{% if c.id == idCursoInicial %}
+		       			<option value="{{c.id}}" selected>{{ c }}</option>
+					{% else %}
+						<option value="{{c.id}}">{{ c }}</option>
+					{% endif %}
+				{% endfor %}
+		      </select>
+		      <br>
+
+		      <label >Encuestas:</label>
+			      	<select class="form-control" id="el_Grupo" name="laEncuesta">
+					{% for e in Encuestas %}
+			       		<option value="{{e.id}}">{{ e }}</option>
+					{% endfor %}
+			      </select>
+<br>
+
+	<table class="table table-striped">
+	{{ Formulario|bootstrap }}
+	</table>
+
+
+
+		      <p><input class="btn btn-primary" type="submit" value="Aceptar"></p>
+		    </div>
+		</form>
+	{% else %}
+		No existen cursos y/o encuestas para crear
+	{% endif %}
+{{info}}
+</div>
+{% endblock%}

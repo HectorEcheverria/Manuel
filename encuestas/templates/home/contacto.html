@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %} Envío Encuesta {% endblock %}
+{% block content %} 		
+<form action="" method="POST">
+	{% csrf_token %}
+	<table class="table table-striped">
+	{{ form.as_table }}
+	</table>
+	<p><input type="submit" value="Guardar">
+	<input type="reset" value="Borrar">
+	</p>
+</form>
+	<br>{{ informacion }}
+
+{% endblock%}

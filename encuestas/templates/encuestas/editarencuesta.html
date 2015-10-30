@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %} Editar Encuesta {% endblock %}
+{% block content %} 
+{% load bootstrap %}		
+<div class="container-fluid row" >
+<div class="col-xs-1">
+</div>
+<div class="col-xs-10">	
+	<form action="" method="POST">
+		{% csrf_token %}
+		<table class="table table-striped">
+		{{ FormularioEncuesta|bootstrap }} 
+		<br><br>
+		&nbsp&nbsp
+
+		{% for cadaPregunta in Preguntas %}
+		
+			<div class="container-fluid">
+			<fieldset disabled>
+						{{ cadaPregunta|bootstrap_horizontal }}
+						</fieldset>
+						<div class="col-xs-2">
+							{% for pregunta in IdPreguntas %}
+								{% if forloop.counter == forloop.parentloop.counter %}
+									<a class="btn btn-success" href="{% url 'vista_editar_pregunta' pregunta %}?next={{request.path}}">Editar</a>
+									<br> 
+									<a class="btn btn-danger" href="{% url 'vista_eliminar_pregunta_encuesta' pregunta %}?next={{request.path}}">Eliminar</a> 
+								{% endif %}
+							{% endfor %}
+							
+						</div>
+					</div>
+
+				</div>
+			</div>
+		{% endfor %}
+		<br>
+		<div class="container-fluid">
+		<p class="lead"><strong> 
+		Nueva Pregunta
+		</strong></p>
+		{{ FormularioDePreguntaVacio|bootstrap_horizontal }}
+		</div> 
+
+		</table>
+		<div class="container">
+		<p><input class="btn btn-primary" type="submit" value="Agregar nueva Pregunta">
+		<input class="btn btn-danger" type="reset" value="Borrar">
+		</p>
+		</div>
+	</form>
+		<br>
+</div>
+<div class="col-xs-1">
+</div>
+</div>
+{% endblock %}

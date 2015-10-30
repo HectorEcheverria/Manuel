@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %} Respuestas encuestas por grupos{% endblock %}
+{% block content %} 
+{% if Modulos %}
+<h2>Modulación de Encuesta {{ Datos.NombreEncuesta }} </h2>
+<h2>Curso: {{ Datos.Curso }} </h2>
+<h2>Profesor: {{ Datos.NombreProfesor }} </h2>
+<br><br><br>
+	<table class="table table-striped">
+		<tr>
+			<td>
+				<h3> RUT </h3>
+			</td>
+			<td>
+				<h3> Módulo </h3>
+			</td>
+		</tr>
+		<tr>
+			{% for m in Modulos %}
+				<td>
+					{{ m.RUT  | intcomma }}
+				</td>
+				<td>
+					{{ m.Modulo | floatformat:3 | intcomma }}
+				</td>
+		</tr>
+		{% endfor %}
+	
+	</table>
+
+{% else %}
+	No existen Grupos en este curso
+{% endif %}
+	
+{% endblock%}

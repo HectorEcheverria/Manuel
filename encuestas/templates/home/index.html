@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %} Bienvenido {% endblock %}
+{% block content %}
+<div class="container wrap sidebar-right">
+	<div class="row">
+		<div class= "main col-xs-9" style="padding-top:40px;">
+			<div class="well">
+				{% if user.is_authenticated %}
+					<p>Bienvenido {{user.username}} </p>
+					
+				{% endif %}
+				<div class="container-fluid" style="font-size:18px;">
+				<p>Bienvenido al <font color="red">MAN</font>ejador <font color="red">U</font>niversal de <font color="red">EN</font>cuestas <font color="red">L</font>ibres para trabajo en equipo.</p>
+					A través de esta aplicación ud podrá crear, editar, enviar y obtener resultados de encuestas aplicadas a grupos de estudiantes con los cuales podrá medir habilidades y capacidades de ellos.
+				</div>
+			</div>
+		</div>
+		<div class="sidebar col-xs-3">
+			<div class="container-fluid">
+				<center><img src="/media/images/logousach.png" width="100px" height="145px" /></center>
+				<p class="navbar-text pull-right">
+				<div class="well">
+				{% if user.is_authenticated %}
+					<label> Bienvenido {{user.alumno.nombre}}{{user.profesor.nombre}} {{user.alumno.apellido}}{{user.profesor.apellido}}</label>
+					{% if user.get_profile.foto %} 
+					<img src="/media/{{ user.get_profile.foto }}" width="100px" height="100"/>
+					{% else %}
+					<img src="/media/images/anonimo.png" width="150px" height="145px">
+					{% endif %}					
+					<a href="{% url 'vista_logout' %}">Cerrar Sesión de {{user.username}}</a>
+				{% else %}
+					<form action="." method="POST">
+						{% csrf_token %}
+						{% load bootstrap %}
+						{{ mensaje }}
+						{{ form|bootstrap}}
+						<input type="submit" value="Login">
+					</form>
+					<br>
+					<a href="{% url "password_reset_recover" %}">Olvidó su contraseña</a>
+				{% endif %}
+				</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %} Elegir Encuestas {% endblock %}
+{% block content %} 
+{% load bootstrap %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-1"></div>
+			<div class="col-lg-5">
+
+			{% if Encuestas %}
+				<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+					<a  class="list-group-item active"> Encuestas sin responder por curso	</a>
+					{% for cadaCurso in Cursos %}
+					<div class="panel panel-default">
+					    <div class="panel-heading" role="tab" id="headingOne">
+					      <h4 class="panel-title">
+					        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{cadaCurso.id}}" aria-expanded="false" aria-controls="collapse{{cadaCurso.id}}" class="collapsed">
+					         {{ cadaCurso }}
+					        </a>
+					      </h4>
+					    </div>
+					    <div id="collapse{{cadaCurso.id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{cadaCurso.id}}">
+					    	<div class="panel-body">
+					    	{% for cadaEncuesta in Encuestas %}
+					    		{% if cadaEncuesta.curso == cadaCurso %}
+							<a class="list-group-item"  href="{% url 'vista_responder_encuesta' cadaEncuesta.curso.id cadaEncuesta.id %}">
+							  {{ cadaEncuesta }} </a>
+							  	{% endif %}
+
+							  {% endfor %}
+							</div>
+					    </div>
+					</div>
+				</div>
+				{% endfor %}
+			{% endif %}
+
+			</div>
+		<div class="col-lg-1"></div>
+	</div>
+</div>
+{% endblock%}		

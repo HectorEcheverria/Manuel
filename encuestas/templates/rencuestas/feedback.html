@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %} Feedback Encuestas {% endblock %}
+{% block content %} 
+{% load bootstrap %}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-1"></div>
+			<div class="col-lg-10">
+
+				<table class="table">
+					<tr class="active">
+					  <td>Nombre</td>
+					  <td>Detalle</td>
+					  <td>Curso</td>
+					  <td>Fecha</td>
+					</tr>
+
+					{% if EncuestasTerminadas %}
+						{% for cadaEncuesta in EncuestasTerminadas %}
+							<tr href="#">
+								<td ><a class="btn btn-success" href="{% url 'vista_datos_grafico' cadaEncuesta.id %} " role="button" >{{ cadaEncuesta.nombreEncuesta }}</a></td>
+								<td>{{cadaEncuesta.detalles}}</td>
+								<td>{{cadaEncuesta.curso}}</td>
+								<td>{{cadaEncuesta.fechaCreacion}}</td>
+							</tr>
+						{% endfor %}
+					{% endif %}
+
+				</table>
+
+			</div>
+		<div class="col-lg-1"></div>
+	</div>
+</div>
+{% endblock%}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %} Encuesta {{ encuestas.curso }} {% endblock %}
+{% block content %} 
+
+<h1>{{ mensaje }}</h1> 		
+<form action="" method="POST">
+	{% csrf_token %}
+	<table class="table table-striped">
+		<tr>
+			<td>
+				<h1> Grupo </h1>
+			</td>
+			<td>
+				<h1> Encuestador </h1>
+			</td>
+			<td>
+				<h1> Encuestado </h1>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<select class="form-control" id="grupos" name="elGrupo" >
+				{% for cadaGrupo in todosLosGrupos %}
+					<option >{{ cadaGrupo }}</option>
+				{% endfor %}
+		      </select>
+			</td>
+			<td>
+				{% if Encuestador.user == user %}
+					<select class="form-control" id="encuestador" name="elEncuestador" >
+					<option>{{ NombreEncuestador }}</option> 
+				{% endif %}
+			</td>
+			<td>
+				<select class="form-control" id="encuestados" name="elEncuestado" >
+				{% for cadaEncuestado in todosLosEncuestados %}
+					<option >{{ cadaEncuestado }}</option>
+				{% endfor %}
+		      </select>
+			</td>
+			
+		</tr>
+	</table>
+	{% if editar %}
+		{% for e in elecciones %}
+			{{ e.as_p }}
+		{% endfor %}
+	{% endif %}
+	<p><input type="submit" value="Guardar">
+	<input type="reset" value="Borrar">
+	</p>
+</form>
+
+{% endblock%}
