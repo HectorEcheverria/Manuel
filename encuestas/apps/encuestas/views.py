@@ -402,51 +402,56 @@ def agregar_jefe_de_grupo_view(request,id_grupo):
 
 def responder_encuesta_view(request,id_encuesta,id_curso):
 
-	elecciones = []
-	todosLosAlumnos = []
-	todosLosGrupos = []
-	todosLosEncuestados = []
-	info = ''
-	elUsuario = request.user
-	usuario = Alumno.objects.get(user=elUsuario)
-	nombreUsuario = '%s %s' %(usuario.nombre,usuario.apellido)
-	mensaje = ''
-	losAlumnos = []
-	rutDelEncuestador = ''
-	elGrupo = ''
-
-	laEncuesta 	= Encuesta.objects.get(id=id_encuesta) # Acá busco la encuesta
-	verificador = laEncuesta.tipoEncuesta
-
-	preguntas 	= laEncuesta.preguntas.all()			# Copio las preguntas
-
-	elCurso		= Curso.objects.get(id=id_curso)
-	grupos		= GruposPorCurso.objects.all().filter(curso=elCurso)
-	alumnos 	= Alumno.objects.all()
-	semestreYAnio	= '%s-%s' %(elCurso.semestre,elCurso.year)
-	respuestasDeAlumnosEncuestados = RespuestaEncuesta.objects.all().filter(idEncuesta=id_encuesta,rutEncuestador=usuario.rut,cursoEncuesta=elCurso.nombrecurso,semestreAnio=semestreYAnio)
-	gruposDelUsuario = usuario.grupo.all()
-
-	for cadaGrupo in grupos:
-		for cadaGrupoUsuario in gruposDelUsuario:
-			if cadaGrupoUsuario == cadaGrupo:
-				elGrupo = GruposPorCurso.objects.get(id=cadaGrupoUsuario.id)
-				alumnosGrupo = Alumno.objects.all().filter(grupo=cadaGrupoUsuario)
-				for cadaAlumno in alumnosGrupo:
-					todosLosEncuestados.append(cadaAlumno)
-					for cadaRespuesta in respuestasDeAlumnosEncuestados:
-						if cadaRespuesta.rutEncuestado == cadaAlumno.rut:
-							todosLosEncuestados.remove(cadaAlumno)
-
-
-	if verificador.tipoEncuesta == VariableTipoEncuesta[1]:
-		jefeGrupo = JefesDeGrupo.objects.get(grupo=elGrupo)
-		todosLosEncuestados = [jefeGrupo.alumno]
-
-	print todosLosEncuestados
-
 	if request.user.is_authenticated():  # verifica usuario
 		
+		try:
+			request.user.alumno in Alumno.objects.all()
+		except:
+			return HttpResponseRedirect('/')
+		elecciones = []
+		todosLosAlumnos = []
+		todosLosGrupos = []
+		todosLosEncuestados = []
+		info = ''
+		elUsuario = request.user
+		usuario = Alumno.objects.get(user=elUsuario)
+		nombreUsuario = '%s %s' %(usuario.nombre,usuario.apellido)
+		mensaje = ''
+		losAlumnos = []
+		rutDelEncuestador = ''
+		elGrupo = ''
+
+		laEncuesta 	= Encuesta.objects.get(id=id_encuesta) # Acá busco la encuesta
+		verificador = laEncuesta.tipoEncuesta
+
+		preguntas 	= laEncuesta.preguntas.all()			# Copio las preguntas
+
+		elCurso		= Curso.objects.get(id=id_curso)
+		grupos		= GruposPorCurso.objects.all().filter(curso=elCurso)
+		alumnos 	= Alumno.objects.all()
+		semestreYAnio	= '%s-%s' %(elCurso.semestre,elCurso.year)
+		respuestasDeAlumnosEncuestados = RespuestaEncuesta.objects.all().filter(idEncuesta=id_encuesta,rutEncuestador=usuario.rut,cursoEncuesta=elCurso.nombrecurso,semestreAnio=semestreYAnio)
+		gruposDelUsuario = usuario.grupo.all()
+
+		for cadaGrupo in grupos:
+			for cadaGrupoUsuario in gruposDelUsuario:
+				if cadaGrupoUsuario == cadaGrupo:
+					elGrupo = GruposPorCurso.objects.get(id=cadaGrupoUsuario.id)
+					alumnosGrupo = Alumno.objects.all().filter(grupo=cadaGrupoUsuario)
+					for cadaAlumno in alumnosGrupo:
+						todosLosEncuestados.append(cadaAlumno)
+						for cadaRespuesta in respuestasDeAlumnosEncuestados:
+							if cadaRespuesta.rutEncuestado == cadaAlumno.rut:
+								todosLosEncuestados.remove(cadaAlumno)
+
+
+		if verificador.tipoEncuesta == VariableTipoEncuesta[1]:
+			jefeGrupo = JefesDeGrupo.objects.get(grupo=elGrupo)
+			todosLosEncuestados = [jefeGrupo.alumno]
+
+		print todosLosEncuestados
+
+			
 		if request.method == "POST":	# revisa el método de envío de datos
 
 
@@ -525,16 +530,18 @@ def responder_encuesta_view(request,id_encuesta,id_curso):
 				respuestas.append( ('5',pregunta.respuesta5) )
 				elecciones.append( ListaEleccion(pregunta.pregunta, respuestas) )
 
-	ctx = {'elecciones':elecciones,
-	  		'todosLosGrupos':todosLosGrupos,
-	  		'todosLosAlumnos':todosLosAlumnos,
-	  		'todosLosEncuestados':todosLosEncuestados,
-	  		'Encuestador': usuario,
-	  		'NombreEncuestador': nombreUsuario,
-	  		'mensaje':mensaje,
-	  		'info':info }
+		ctx = {'elecciones':elecciones,
+		  		'todosLosGrupos':todosLosGrupos,
+		  		'todosLosAlumnos':todosLosAlumnos,
+		  		'todosLosEncuestados':todosLosEncuestados,
+		  		'Encuestador': usuario,
+		  		'NombreEncuestador': nombreUsuario,
+		  		'mensaje':mensaje,
+		  		'info':info }
 
-	return render_to_response('tomaencuestas/tomaencuesta.html',ctx,context_instance=RequestContext(request))
+		return render_to_response('tomaencuestas/tomaencuesta.html',ctx,context_instance=RequestContext(request))
+	else:
+		return HttpResponseRedirect('/')
 
 def mostrar_preguntas_view(request):
 	if request.user.is_authenticated():
