@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %} Actualizar perfil {% endblock %}
+{% block content %} 	
+{% load bootstrap %}
+<div class="container-fluid" >		
+<div class="row">
+<div class="col-md-2"></div>
+<div class="col-md-5">
+<form action="" enctype='multipart/form-data' method="POST">
+	{% csrf_token %}
+	{% if informacion %}
+	<div class="alert alert-danger">{{ informacion }}</div>
+	{% endif %}
+	<table class="table table-striped">
+	{{ form|bootstrap }}
+	</table>
+	<p><input class="btn btn-primary" type="submit" value="Guardar">
+	<input class="btn btn-danger" type="reset" value="Borrar">
+	</p>
+</form>
+</div>
+<div class="col-md-3">
+	<label>Consideraciones importantes:</label>
+	<ul>
+		<li>Recuerde que si cambia su "username" debe ingresar el nuevo username al momento de iniciar la aplicación</li>
+		<li>No es necesario cambiar todos los campos cada vez, puede cambiar solo los campos que le interese</li>
+	</ul>
+</div>
+<div class="col-md-2"></div>
+</div>
+</div>
+{% endblock%}

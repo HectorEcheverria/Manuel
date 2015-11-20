@@ -22,17 +22,25 @@
 				<div class="well">
 				{% if user.is_authenticated %}
 					<label> Bienvenido {{user.alumno.nombre}}{{user.profesor.nombre}} {{user.alumno.apellido}}{{user.profesor.apellido}}</label>
-					{% if user.get_profile.foto %} 
-					<img src="/media/{{ user.get_profile.foto }}" width="100px" height="100"/>
+					{% if user.alumno.foto %} 
+					<img src="/media/{{ user.alumno.foto }}" width="150px" height="150"/>
+					{% elif user.profesor.foto %} 
+					<img src="/media/{{ user.profesor.foto }}" width="150px" height="150"/>
+					
 					{% else %}
 					<img src="/media/images/anonimo.png" width="150px" height="145px">
 					{% endif %}					
 					<a href="{% url 'vista_logout' %}">Cerrar Sesión de {{user.username}}</a>
 				{% else %}
+					{% if form.errors %}
+					pene
+					{% endif %}
 					<form action="." method="POST">
 						{% csrf_token %}
 						{% load bootstrap %}
-						{{ mensaje }}
+						<div class="alert alert-danger">
+  						<strong>Error!</strong> {{ mensaje }}</div>
+						
 						{{ form|bootstrap}}
 						<input type="submit" value="Login">
 					</form>

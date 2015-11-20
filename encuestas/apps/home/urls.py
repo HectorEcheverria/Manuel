@@ -7,5 +7,6 @@ urlpatterns = patterns('encuestas.apps.home.views',
 	url(r'^contacto/$','contacto_view', name='vista_contacto'),
 	url(r'^login/$','login_view', name='vista_login'),
 	url(r'^logout/$','logout_view', name='vista_logout'),
-	url(r'^editar/perfil/$','editar_perfil_view',name='vista_editar_perfil')	
+	url(r'^editar/perfil/$','editar_perfil_view',name='vista_editar_perfil'),	
+	url(r'^actualizar/usuario/$','actualizar_perfil', name='vista_actualizar_perfil')
 )

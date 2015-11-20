@@ -2,6 +2,7 @@
 from django import forms
 from encuestas.apps.encuestas.models import *
 from django.utils.translation import ugettext_lazy as _
+from django.core.validators import validate_integer
 
 class agregarCurso(forms.ModelForm):
 	class Meta:
@@ -23,21 +24,33 @@ class agregarPregunta(forms.Form):
 	respuesta5  = forms.CharField(widget=forms.TextInput(),label='Respuesta nivel muy alto')
 
 class agregarAlumno(forms.Form):
-	nombre 		= forms.CharField(widget=forms.TextInput())
-	apellido	= forms.CharField(widget=forms.TextInput())
-	email		= forms.EmailField(widget=forms.TextInput(),label='Email')
-	rut			= forms.CharField(widget=forms.TextInput(),label='RUT')
+	nombre 		= forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Francisco'}))
+	apellido	= forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Fernández'}))
+	email		= forms.EmailField(widget=forms.TextInput(attrs={'placeholder':'francisco.fernandez@usach.cl'}),label='Email')
+	rut			= forms.CharField(widget=forms.TextInput(attrs={'placeholder':'11111111'}),label='RUT',)
+
+	def clean(self):
+		cd=self.cleaned_data
+		validate_integer(cd.get('rut', None))
 	
 class agregarProfesor(forms.Form):
-	nombre 		= forms.CharField(widget=forms.TextInput())
-	apellido	= forms.CharField(widget=forms.TextInput())
-	email		= forms.EmailField(widget=forms.TextInput(),label='Email')
-	rut			= forms.CharField(widget=forms.TextInput(),label='RUT')
+	nombre 		= forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Francisco'}))
+	apellido	= forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Fernández'}))
+	email		= forms.EmailField(widget=forms.TextInput(attrs={'placeholder':'francisco.fernandez@usach.cl'}),label='Email')
+	rut			= forms.CharField(widget=forms.TextInput(attrs={'placeholder':'11111111'}),label='RUT (Sin puntos ni guiones)')
+
+	def clean(self):
+		cd=self.cleaned_data
+		validate_integer(cd.get('rut', None))
 
 class agregarEncuesta(forms.ModelForm):
+	
+	detalles 		= forms.CharField(required=True)
+	modulo			= forms.FloatField(required=True)
 	class Meta:
 		model 	= Encuesta	
 		exclude ={'curso','cerrada','nombreEncuesta','descripcion','preguntas','preguntasLibres','plantilla','fechaCreacion','tipoEncuesta'}
+
 
 class AgregarEncuestaAdmin(forms.ModelForm):
 	class Meta:

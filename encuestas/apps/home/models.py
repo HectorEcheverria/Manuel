@@ -12,4 +12,4 @@ class perfilUsuario(models.Model):
 	correo	=	models.EmailField(max_length=200)#Validar a correo??
 
 	def __unicode__(self):
-		return self.user.username
+		return self.user.username 

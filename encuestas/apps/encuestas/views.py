@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail, send_mass_mail
 from django.conf import settings
-import re  # expresion regular
+import re  # regular expresion
 import matplotlib 
 matplotlib.use('agg')
 from matplotlib import pylab
@@ -45,7 +45,10 @@ def agregar_pregunta_view(request):
 				info = "Se guardoo bien"
 				return HttpResponseRedirect(redirect_to)
 			else:
-				info = "Algo salioo mal"
+				info = ""
+				ctx = {'form':form, 'informacion':info}
+				return render(request,'encuestas/addpregunta.html',ctx)
+
 
 			form = agregarPregunta()
 			ctx = {'form':form, 'informacion':info}
@@ -89,7 +92,9 @@ def editar_pregunta_view(request,id_pregunta):
 				info = "Se guardoo bien"
 				return HttpResponseRedirect(redirect_to)
 			else:
-				info = "Algo salioo mal"
+				info = "Datos incorrectos"
+				ctx = {'form':form, 'informacion':info}
+				return render(request,'encuestas/addpregunta.html',ctx)
 
 			form = agregarPregunta(instance=pregunta)
 			ctx = {'form':form, 'informacion':info}
@@ -113,7 +118,7 @@ def agregar_alumno_view(request): # Cambiada
 			existeRut	= False
 			datoRepetido = ''
 			form = agregarAlumno(request.POST)
-			info = "Inicializando"
+			info = ""
 			if form.is_valid(): 
 				a = Alumno()
 				a.nombre 	= form.cleaned_data['nombre']
@@ -140,16 +145,17 @@ def agregar_alumno_view(request): # Cambiada
 					print(user.id)
 					a.user = user
 					a.save()
-					info = "Datos bien guardados"
+					info = "Un nuevo alumno se ha creado"
 				else:
 					if existeRut == True:
 						datoRepetido = 'RUT'
 					if existeUsuario == True:
 						datoRepetido = datoRepetido + ' Usuario'
 
-					info = 'Datos inválidos (%s)' %(datoRepetido)
+					info = 'Datos inválidos (%s) repetido' %(datoRepetido)
 			else:
-				info = "Alo salioo mal"
+				ctx = {'form':form, 'informacion':info}
+				return render(request,'encuestas/addprofesor.html',ctx)
 
 			form = agregarAlumno()
 			ctx = {'form':form, 'informacion':info}
@@ -165,7 +171,7 @@ def agregar_profesor_view(request):
 	if request.user.is_superuser:
 		if request.method=="POST":
 			form = agregarProfesor(request.POST)
-			info = "Inicializando"
+			info = ""
 			todosLosAlumnos = Alumno.objects.all()
 			todosLosProfesores = Profesor.objects.all()
 			existe = False
@@ -199,7 +205,8 @@ def agregar_profesor_view(request):
 				else:
 					info = 'Datos inválidos'
 			else:
-				info = "Alo salioo mal"
+				ctx = {'form':form, 'informacion':info}
+				return render(request,'encuestas/addprofesor.html',ctx)
 
 			form = agregarProfesor()
 			ctx = {'form':form, 'informacion':info}
@@ -213,7 +220,7 @@ def agregar_profesor_view(request):
 
 def agregar_curso_view(request):
 	if request.user.is_staff or request.user.is_superuser:	
-		info = "iniciando"
+		info = ""
 		if request.method == "POST":
 			form = agregarCurso(request.POST)
 			if form.is_valid():
@@ -221,6 +228,9 @@ def agregar_curso_view(request):
 				add.status 	= True
 				add.save()
 				info = "Guardado satisfactoriamente"
+			else:
+				ctx = {'form':form, 'informacion':info}
+				return render(request,'encuestas/addcurso.html',ctx)
 		else:
 			form = agregarCurso()
 		form = agregarCurso()
@@ -240,6 +250,9 @@ def agregar_grupo_view(request):
 				add.save()
 				info = "Guardado satisfactoriamente"
 				return HttpResponseRedirect(redirect_to)
+			else:
+				ctx = {'form':form, 'informacion':info}
+				return render(request,'encuestas/addgrupo.html',ctx)
 
 		else:
 			form = agregarGrupo()
@@ -249,21 +262,24 @@ def agregar_grupo_view(request):
 	else:
 		return HttpResponseRedirect('/')
 
-# def agregar_encuesta_view(request):
-# 	info = 'iniciando'
-# 	if request.method =='POST':
-# 		form = agregarEncuesta(request.POST)
-# 		if form.is_valid():
-# 			add 	= form.save(commit=False)
-# 			add.save()
-# 			#add.save
-# 			form.save_m2m()
-# 			info = 'Guardado exitosamente'
-# 	else:
-# 		form = agregarEncuesta()
-# 	form = agregarEncuesta()
-# 	ctx = { 'form':form, 'informacion':info}
-# 	return render_to_response('encuestas/addencuesta.html',ctx,context_instance= RequestContext(request))
+def agregar_encuesta_view(request):
+	info = ''
+	if request.method =='POST':
+		form = agregarEncuesta(request.POST)
+		if form.is_valid():
+			add 	= form.save(commit=False)
+			add.save()
+			#add.save
+			form.save_m2m()
+			info = 'Guardado exitosamente'
+		else:
+			ctx = {'form':form, 'informacion':info}
+			return render(request,'encuestas/addencuesta.html',ctx)
+	else:
+		form = agregarEncuesta()
+	form = agregarEncuesta()
+	ctx = { 'form':form, 'informacion':info}
+	return render_to_response('encuestas/addencuesta.html',ctx,context_instance= RequestContext(request))
 
 def agregar_grupo_a_alumno_view(request,id_profesor): # Sacado de mostrar Curso profesor
 
@@ -370,6 +386,10 @@ def agregar_jefe_de_grupo_view(request,id_grupo):
 				jefe.alumno = form.cleaned_data['alumno']
 				jefe.save()
 				return HttpResponseRedirect(redirect_to)
+			else:
+				ctx = {'form':form,
+						'Alumnos':alumnosGrupo}
+				return render(request,'encuestas/agregarjefegrupo.html',ctx)
 
 		else:
 			form = AgregarJefeGrupo()
@@ -527,7 +547,6 @@ def mostrar_preguntas_view(request):
 def mostrar_curso_view(request,id_profesor): 
 	# DATOS
 	alumnos 			=[]
-	print(id_profesor)
 	elProfesor 			= Profesor.objects.get(user_id=id_profesor)
 	cursoElegido		= 0
 	grupoElegido 		= 0
@@ -742,13 +761,9 @@ def enviar_encuestas_curso_view(request,id_encuesta):
 					if cadaGrupo.id == grupo.id:
 						mailMasivo.append(cadaAlumno.email)
 		mailMasivo = list(set(mailMasivo))
-		print(mailMasivo)
 
 		mensaje = 'Por favor responder la encuesta 360:\n %s/responder/encuesta/%s/%s' %(settings.URL_GEN,elCurso.id,id_encuesta)
-		print(mensaje)
-		# send_mail('Encuesta 360', mensaje , 'contacto.encuestas.2015@gmail.com', mailMasivo )
-		print('La encuesta se envió a:')
-		print mailMasivo
+		send_mail('Encuesta 360', mensaje , 'contacto.encuestas.2015@gmail.com', mailMasivo )
 
 	return HttpResponseRedirect('/')
 
@@ -774,21 +789,6 @@ def datos_enviar_encuesta_curso_view(request):
 			nombreCursoDividido = []
 			if 'elCurso' in request.POST:
 				idCursoElegido = request.POST['elCurso']
-				# nombreCursoElegido  = request.POST['elCurso']
-				# cursoConSemestre = nombreCursoElegido.split(' ')
-				# contador = 0
-				# semestre = cursoConSemestre[len(cursoConSemestre)-2]
-				# anio = cursoConSemestre[len(cursoConSemestre)-1]
-
-				# while (len(cursoConSemestre) - (contador + 2)) > 0:
-				# 	variable = ''
-				# 	variable = cursoConSemestre[contador]
-				# 	nombreCursoDividido.append(variable)
-				# 	contador +=1
-				# if len(nombreCursoDividido) != 1:
-				# 	nombreCursoElegido = " ".join(str(x) for x in nombreCursoDividido)
-				# else:
-				# 	nombreCursoElegido = nombreCursoDividido[0]
 				cursoElegido = Curso.objects.get(id=idCursoElegido)
 				idCursoInicial = cursoElegido.id
 				todasLasEncuestas = Encuesta.objects.all().filter(plantilla=False,curso=cursoElegido)
@@ -798,15 +798,8 @@ def datos_enviar_encuesta_curso_view(request):
 				idEncuestaElegida		= request.POST['laEncuesta']
 				encuestaElegida 			= Encuesta.objects.get(id=idEncuestaElegida)
 				cursoElegido 				= Curso.objects.get(id=request.POST['elCurso_oculto'])
-				#semestreYAnio				='%s-%s' %(cursoElegido.semestre,cursoElegido.year)
-
+				
 				idCursoInicial = request.POST['elCurso_oculto']
-				# idEncuestaInicial = encuestaElegida.id
-				# todasLasEncuestas = encuesta.objects.all().filter(plantilla=False)
-				# encuestaElegida.curso.add(curso.objects.get(id=idCursoInicial))
-
-
-
 				return HttpResponseRedirect('/enviar/encuestas/%s/' %(encuestaElegida.id))
 
 		ctx = {	'Cursos':muchosCursos,
@@ -1142,6 +1135,12 @@ def agregar_encuesta_con_preguntas_view(request):
 				almacenar_encuesta_sesion(request,laEncuesta.id)	
 				return redirect('/nuevo/editar/encuesta/')
 				info = 'Guardado exitosamente'
+			else:
+				ctx = { 'FormularioEncuesta':formularioDeEncuesta,
+						'FormularioPregunta':formularioDePregunta, 
+						'informacion':info}
+
+				return render(request,'encuestas/addencuesta.html',ctx)
 		else:
 			formularioDeEncuesta = AgregarEncuestaAdmin()
 			formularioDePregunta = agregarPregunta()
@@ -1164,7 +1163,7 @@ def editar_encuestas_con_preguntas_view(request):
 	idPreguntas = []
 	encuestas = Encuesta.objects.all()
 
-	if request.user.is_staff or request.user.is_superuser:
+	if request.user.is_superuser:
 		if 'idEncuestaSeleccionada' in request.session:
 
 
@@ -1195,7 +1194,6 @@ def editar_encuestas_con_preguntas_view(request):
 					if formularioDeEncuesta.is_valid():
 					
 						if formularioDePregunta.is_valid():
-							print request.POST
 							p = PreguntaEncuesta()
 							p.pregunta = formularioDePregunta.cleaned_data['pregunta']
 							p.descripcionPregunta = formularioDePregunta.cleaned_data['descripcionPregunta']
@@ -1216,13 +1214,27 @@ def editar_encuestas_con_preguntas_view(request):
 															'respuesta4':p.respuesta4,
 															'respuesta5':p.respuesta5})
 							todasLasPreguntasComoFormulario.append(nuevaPregunta)
-							print(len(todasLasPreguntasComoFormulario))
 							info = 'Guardado exitosamente'
 							return redirect('/nuevo/editar/encuesta/')
-
+						else:
+							ctx = { 'FormularioEncuesta':formularioDeEncuesta,
+									'FormularioPregunta':formularioDePregunta,
+									'FormularioDePreguntaVacio':formularioDePreguntaVacio, 
+									'Preguntas':todasLasPreguntasComoFormulario,
+									'IdPreguntas':idPreguntas,
+									'Encuestas':encuestas,
+									'informacion':info}
+							return render(request,'encuestas/editarencuesta.html',ctx)
 					else:
-						formularioDeEncuesta = AgregarEncuestaConPregunta()
-						formularioDePregunta = agregarPregunta()
+
+						ctx = { 'FormularioEncuesta':formularioDeEncuesta,
+								'FormularioPregunta':formularioDePregunta,
+								'FormularioDePreguntaVacio':formularioDePreguntaVacio, 
+								'Preguntas':todasLasPreguntasComoFormulario,
+								'IdPreguntas':idPreguntas,
+								'Encuestas':encuestas,
+								'informacion':info}
+						return render(request,'encuestas/editarencuesta.html',ctx)
 
 
 
@@ -1297,6 +1309,16 @@ def crear_encuesta_profesor_view(request):
 				 		encuestaParaCurso.preguntas.add(cadaPregunta)
 					
 					almacenar_encuesta_sesion(request,encuestaParaCurso.pk)
+				else:
+					ctx = {	'Cursos':muchosCursos,
+							'Grupos':todosLosGrupos,
+							'Encuestas':encuestasSeleccionadas,
+							'idCursoInicial':idCursoInicial,
+							'idGrupoInicial':idGrupoInicial,
+							'Formulario':form,
+							}
+					return render(request,'encuestas/agregarencuestaprofesor.html',ctx)
+
 
 
 				return HttpResponseRedirect('/')
@@ -1318,7 +1340,6 @@ def almacenar_curso_sesion(request,id_curso):
 		idCurso = elCurso.id
 		request.session['idCursoSeleccionado'] = idCurso
 		request.session['nombreCursoSeleccionado'] = elCurso.nombrecurso
-		print(request.session['idCursoSeleccionado'])
 
 	return HttpResponseRedirect('/agregar/alumnos/grupos/')
 
@@ -1585,6 +1606,7 @@ def nuevo_eleccion_encuesta_alumno_view(request):
 	return render_to_response('rencuestas/encuestassinterminarporalumno.html',ctx,context_instance=RequestContext(request))
 
 def mostrar_encuestas_finalizadas_view(request):
+	#### ARREGLAR
 	if request.user.is_authenticated():
 		usuario = request.user
 		elAlumno = Alumno.objects.get(user=usuario)
@@ -1594,12 +1616,16 @@ def mostrar_encuestas_finalizadas_view(request):
 		todasLasRespuestas = []
 		encuestasTerminadas = []
 		laEncuesta = ''
+		todasLasEncuestas = []
 
 		for cadaGrupo in gruposAlumno:
 			cursosAlumno.append(cadaGrupo.curso)
-		todasLasEncuestas = Encuesta.objects.all().filter(plantilla=False)
-		for cadaEncuesta in todasLasEncuestas:
-			encuestasTerminadas.append(cadaEncuesta)
+		for cadaCurso in cursosAlumno:
+			todasLasEncuestas = Encuesta.objects.all().filter(plantilla=False, curso=cadaCurso)
+			for cadaEncuesta in todasLasEncuestas:
+				encuestasTerminadas.append(cadaEncuesta)
+		encuestasTerminadas = set(list(encuestasTerminadas))
+		print encuestasTerminadas
 
 		for cadaEncuesta in todasLasEncuestas:
 			for cadaGrupo in gruposAlumno:
@@ -1619,8 +1645,6 @@ def mostrar_encuestas_finalizadas_view(request):
 							if estaEncuestados == False:
 								if cadaEncuesta in encuestasTerminadas:
 									encuestasTerminadas.remove(cadaEncuesta)
-		print ('Las encuestas terminadas son:')
-		print encuestasTerminadas
 		ctx = {'EncuestasTerminadas':encuestasTerminadas,
 		}
 		return render_to_response('rencuestas/feedback.html',ctx,context_instance=RequestContext(request))
@@ -1753,43 +1777,30 @@ def modulacion_por_grupo(id_grupo,id_encuesta):
 				total = 0
 				for c in range(len(alumnosDelGrupo)):
 					total = total + sumaPorEncuestado[(x*c)]
-					# print ('Lo que se suma al total es')
-					# print sumaPorEncuestado[c*cantidadPreguntas]
-				
+
 				total = total/len(alumnosDelGrupo)
-				# print ('El total de una pregunta es')
-				# print total
 
 				dicc = {}
 				dicc['RUT']= cadaCompanero.rut
 				dicc[x] = total 
 
 				promediosAlumnos.append(dicc)
-				# if elAlumno.rut == cadaCompanero.rut:
-				# 	promediosElAlumno.append(dicc)
-		# print ('Todas las respuestas recibidas ')
-		# print sumaPorEncuestado
-
-
 
 	### Parte de Módulos 
 	promedioDatosPreguntas = []
-	# print('Promedio alumnos')
-	# print(promediosAlumnos)
+
 	for numeroDePregunta in range(cantidadPreguntas):
 		promedioPorPregunta = 0
 		for r in promediosAlumnos:
 			if numeroDePregunta in r:
-				# print ('Promedio por nota:')
-				# print r[numeroDePregunta]
+
 				promedioPorPregunta = promedioPorPregunta + r[numeroDePregunta]
 		promedioPregunta = {}
 		if len(alumnosDelGrupo) !=0:
 			promedioPregunta[numeroDePregunta] = promedioPorPregunta/len(alumnosDelGrupo)
-		# print promedioPregunta[numeroDePregunta]
+	
 		promedioDatosPreguntas.append(promedioPregunta)
-		# print('El promedio de las preguntas es:')
-		# print promedioDatosPreguntas
+	
 		promedioGrupo = 0
 		for cadaPromedio in promedioDatosPreguntas:
 			for x in range(cantidadPreguntas):
@@ -1993,7 +2004,7 @@ def datos_grafico_alumno(request,id_encuesta):
 
 	# add legend relative to top-left plot
 	plt.subplot(2, 2, 1)
-	alumnoConModulo = str(elAlumno)+' modulo '+str(round(moduloAlumno, 3))
+	alumnoConModulo = unicode(elAlumno)+' modulo '+str(round(moduloAlumno, 3))
 	labels = ('Promedio Curso', alumnoConModulo)
 	legend = plt.legend(labels, loc=(0.9, .95), labelspacing=0.1)
 	plt.setp(legend.get_texts(), fontsize='small')
@@ -2011,25 +2022,8 @@ def datos_grafico_alumno(request,id_encuesta):
 				'IdEncuesta':id_encuesta,
 				'Preguntas':listaPreguntaPromedio}
 
-	# canvas = pylab.get_current_fig_manager().canvas
-	# canvas.draw()
-	# graphIMG = PIL.Image.fromstring("RGB", canvas.get_width_height(), canvas.tostring_rgb())
-	# graphIMG.save(buffer,"PNG")
-	# pylab.close()
-
-	# return HttpResponse(buffer.getvalue(), content_type="image/png")
+	
 	return render(request,'rencuestas/vistagraficos.html',contexto)
-
-	# plt.savefig('radar-chart.png', facecolor='white')
-	# # plt.show()
-
-	# canvas=FigureCanvas(fig)
-	# response=django.http.HttpResponse(content_type='image/png')
-	# canvas.print_png(response)
-	# plt.close(canvas)
-
-
-	# return response
 
 def datos_grafico_profesor_view(request,id_encuesta,id_grupo):
 
@@ -2276,10 +2270,7 @@ def datos_grafico_profesor_view(request,id_encuesta,id_grupo):
 					'IdEncuesta':id_encuesta,
 					'IdGrupo':id_grupo,
 					'Preguntas':listaPreguntaPromedio}
-		# print ('El contexto es:')
-		# print contexto['IdGrupo']
-		# print contexto['Alumnos']
-		# print contexto['IdEncuesta']
+
 
 		return render(request,'rencuestas/vistagraficos.html',contexto)
 	else:
@@ -2295,15 +2286,16 @@ def encuesta_terminada(idCurso):
 	encuestasDelCursoLiderazgo = Encuesta.objects.all().filter(curso=elCurso,plantilla=False,tipoEncuesta=tipoLiderazgo)
 	grupoTerminado = False
 	alumnoEncuestado = False
-	
-	## Arreglar que por tipo de encuesta entregue distintos resultados
-
 	for cadaEncuesta in encuestasDelCurso:
 		todasLasRespuestasPorEncuesta = RespuestaEncuesta.objects.filter(encuesta=cadaEncuesta)
 		for cadaGrupo in gruposDelCurso:
+			print cadaGrupo
 			grupoTerminado = False
 			losAlumnos = Alumno.objects.all().filter(grupo=cadaGrupo)
+			print losAlumnos
 			for cadaAlumnoEncuestador in losAlumnos:
+				print 'Alumnos'
+				print cadaAlumnoEncuestador
 				for cadaAlumnoEncuestado in losAlumnos:
 					alumnoEncuestado = False
 					for cadaRespuesta in todasLasRespuestasPorEncuesta:
@@ -2315,11 +2307,12 @@ def encuesta_terminada(idCurso):
 						break
 				if alumnoEncuestado == False:
 					break
-			if alumnoEncuestado == False:
+			if alumnoEncuestado == False and len(losAlumnos) != 0:
 				grupoTerminado = False
 				break
 			else:
 				grupoTerminado = True
+
 		if grupoTerminado == True:
 			idEncuestasTerminadas.append(cadaEncuesta)
 
@@ -2346,9 +2339,7 @@ def encuesta_terminada(idCurso):
 				grupoTerminado = True
 		if grupoTerminado == True:
 			idEncuestasTerminadas.append(cadaEncuesta)
-
-
-
+	print idEncuestasTerminadas
 
 	return idEncuestasTerminadas
 
@@ -2690,6 +2681,8 @@ def datos_grafico_profesor_curso_view(request,id_encuesta,id_curso):
 		modulacionDelGrupo = []
 		modulacionGrupo =[]
 		listaGrupos=[]	
+		todosLosAlumnos=[]
+		todosLosGrupoFiltrados = []
 
 		if request.method == 'POST': #### Para cambiar los datos del gráfico
 			for i in range(0,valorIdMaximo.id+1):
@@ -2703,10 +2696,18 @@ def datos_grafico_profesor_curso_view(request,id_encuesta,id_curso):
 		for cadaPregunta in preguntas:
 			lasPreguntas.append(cadaPregunta.pregunta)
 
+		for cadaGrupo in todosLosGruposCurso:
+			todosLosAlumnos = Alumno.objects.all().filter(grupo=cadaGrupo)
+			if len(todosLosAlumnos) != 0:
+				todosLosGrupoFiltrados.append(cadaGrupo)
+				todosLosAlumnos = []
+		todosLosGruposCurso = todosLosGrupoFiltrados
 		ctx = {}
 
 		for cadaGrupo in todosLosGruposCurso:
 			ctx[cadaGrupo] = modulacion_por_grupo(cadaGrupo.id,id_encuesta)
+
+
 
 		# ctx = modulacion_por_grupo(elGrupo.id,id_encuesta) ## Recive un diccionario que tiene el número de la pregunta y el promedio
 		promediosPreguntas = []
@@ -2722,7 +2723,7 @@ def datos_grafico_profesor_curso_view(request,id_encuesta,id_curso):
 			diccionarioPromedioPregunta[x]=0
 		
 
-		print ctx
+		
 		for key,promedioPreguntaGrupo in ctx.iteritems():
 			for cadaPromedio in promedioPreguntaGrupo['PromediosPreguntas']:
 				# print cadaPromedio
@@ -2765,17 +2766,6 @@ def datos_grafico_profesor_curso_view(request,id_encuesta,id_curso):
 			print modulacionGrupo
 			data['Modulacion'].append(modulacionGrupo)
 			
-			print 'Data'
-			print data['Modulacion']
-
-
-		# print ('La modulacion final es:')
-		# print data['Modulacion']
-		# print ('modulos para graficos')
-		# print (modulosParaGraficos)
-		print ('los promedios del curso son:')
-		print promedioCursoParaGraficos
-
 
 		N = len(listas)
 		theta = radar_factory(N, frame='polygon')
@@ -2823,10 +2813,6 @@ def datos_grafico_profesor_curso_view(request,id_encuesta,id_curso):
 					'IdEncuesta':id_encuesta,
 					# 'IdGrupo':id_grupo,
 					'Preguntas':listaPreguntaPromedio}
-		# print ('El contexto es:')
-		# print contexto['IdGrupo']
-		# print contexto['Alumnos']
-		# print contexto['IdEncuesta']
 
 		return render(request,'rencuestas/vistagraficosporgrupo.html',contexto)
 	else:

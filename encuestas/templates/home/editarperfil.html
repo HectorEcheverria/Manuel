@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %} Editar Usuario {% endblock %}
+{% block content %} 	
+{% load bootstrap %}
+<div class="container-fluid" >		
+
+{% csrf_token %}
+
+{% if Usuario %}
+{% if Alumno %}
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-1"></div>
+			<div class="col-md-5">
+				<table class="table">
+					<tbody>
+					<tr>
+					<td><label> Nombre Usuario </label></td>
+					<td>{{Usuario.username}}</td>
+					</tr>
+					<tr>
+					<td><label> Nombre </label></td>
+					<td>{{Alumno.nombre}}</td>
+					</tr>
+					<tr>
+					<td><label> Apellido </label></td>
+					<td>{{Alumno.apellido}}</td>
+					</tr>
+					<tr>
+					<td><label> RUT </label></td>
+					<td>{{Alumno.rut}}</td>
+					</tr>
+					<tr>
+					<td><label>Email</label></td>
+					<td>{{Usuario.email}}</td>
+					</tr>
+					<tr>
+					<td><label>Foto</label></td>
+					<td>{% if Alumno.foto %} 
+					<img src="/media/{{ Alumno.foto }}" width="100px" height="100"/>
+					{% else %}
+					<img src="/media/images/anonimo.png" width="150px" height="145px">
+					{% endif %}</td>
+					</tr>
+					</tbody>
+					</table>
+					<a href="{% url 'vista_actualizar_perfil'%}" class="btn btn-warning ">Editar perfil</a>
+					<!-- <a class="btn btn-danger ">Cambiar contraseña</a> -->
+			</div>
+			<div class="col-md-6"></div>
+		</div>
+
+	</div>
+	
+{% endif %}
+{% endif %}
+
+</div>
+{% endblock%}
+
+
+<!-- <form action="" enctype='multipart/form-data' method="POST">
+	{% csrf_token %}
+	<table class="table table-striped">
+	{{ Perfil|bootstrap }}
+	</table>
+	<p><input class="btn btn-primary" type="submit" value="Guardar">
+	<input class="btn btn-danger" type="reset" value="Borrar">
+	</p>
+</form>
+	<br>
+ -->

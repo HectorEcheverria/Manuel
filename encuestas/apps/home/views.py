@@ -1,17 +1,18 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response,render
 from django.template import RequestContext
 from encuestas.apps.encuestas.models import *
 from encuestas.apps.home.forms import *
 from django.contrib.auth import login,logout,authenticate
 from django.http import HttpResponseRedirect
 from django.core.mail import EmailMultiAlternatives
+from django.views.generic.edit import UpdateView
 
 
 def index_view(request):
 	encuestas = Encuesta.objects.all()
 	laEncuesta = ''
+	mensaje =''
 	todosLosCursos = []
-	print(request.session)
 	usuario = request.user
 	losProfesores = Profesor.objects.filter(user_id=usuario.id)
 
@@ -40,14 +41,19 @@ def index_view(request):
 					login(request,usuario)
 					return HttpResponseRedirect('/')
 				else:
+					print 'entro'
 					mensaje = "Usuario y/o Password incorrecto"
+					ctx = {'mensaje':mensaje,
+							'form': form}
+					return render(request,'home/index.html',ctx)
 		form = loginForm()
-		print(encuestas)
+		print mensaje
 		ctx= {	'form':form,
 				'Encuestas':encuestas,
 				'nombreEncuestaSeleccionada':laEncuesta,
-				'Cursos':todosLosCursos}
-		return render_to_response('home/index.html',ctx,context_instance=RequestContext(request))
+				'Cursos':todosLosCursos,
+				'mensaje':mensaje}
+	return render_to_response('home/index.html',ctx,context_instance=RequestContext(request))
 	#return render_to_response('home/index.html',ctx, context_instance=RequestContext(request))
 
 def encuestas_view(request):
@@ -95,8 +101,9 @@ def login_view(request):
 				if usuario is not None and usuario.is_active:
 					login(request,usuario)
 					return HttpResponseRedirect('/')
-				else:
-					mensaje = "Usuario y/o Password incorrecto"
+			else:
+				return HttpResponseRedirect('/login/')
+				mensaje = "Usuario y/o Password incorrecto"
 		form = loginForm()
 		ctx= {'form':form,'mensaje':mensaje}
 		return render_to_response('home/login.html',ctx,context_instance=RequestContext(request))
@@ -106,35 +113,86 @@ def logout_view(request):
 	return HttpResponseRedirect('/')
 
 def editar_perfil_view(request):
-	perfil = editarPerfil()
+	
 	if request.user.is_authenticated():
 		usuario = request.user
-		losProfesores = Profesor.objects.filter(user=usuario)
-		losAlumnos = Alumno.objects.filter(user=usuario)
-		usuarioExtendido =''
-		tipo=''
-		if len(losProfesores) == 1:
-			usuarioExtendido = losProfesores[0]
-			tipo='profesor'
-		elif len(losAlumnos) == 1:
-			usuarioExtendido = losAlumnos[0]
-			tipo='profesor'
-		else:
-			return HttpResponseRedirect('/')
+		print usuario
+		usuarioAlumno = Alumno.objects.get(user=usuario)
+		
 
-		if request.method == "POST":
-			perfil = editarPerfil(request.POST,request.FILES)
-			if perfil.is_valid():
-				usuarioExtendido.email = perfil.cleaned_data['email']
-				usuarioExtendido.foto = perfil.cleaned_data['foto']
-				if perfil.cleaned_data['password']==perfil.cleaned_data['password2']:
-					usuario.set_password(perfil.cleaned_data['password'])
-					usuarioExtendido.save(update_fields=['email','foto'])
-					usuario.save()
-			return HttpResponseRedirect('/')
-					
+		ctx = {'Usuario':usuario,
+			'Alumno':usuarioAlumno}
+		return render_to_response('home/editarperfil.html',ctx,context_instance= RequestContext(request))		
 
-	ctx = {'Perfil':perfil}
-	return render_to_response('encuestas/editarperfil.html',ctx,context_instance= RequestContext(request))
+
+	return HttpResponseRedirect('/')	
 	
 
+		# usuario = request.user
+		# losProfesores = Profesor.objects.filter(user=usuario)
+		# losAlumnos = Alumno.objects.filter(user=usuario)
+		# usuarioExtendido =''
+		# tipo=''
+		# if len(losProfesores) == 1:	
+		# 	usuarioExtendido = losProfesores[0]
+		# 	tipo='profesor'
+		# elif len(losAlumnos) == 1:
+		# 	usuarioExtendido = losAlumnos[0]
+		# 	tipo='profesor'
+		# else:
+		# 	return HttpResponseRedirect('/')
+
+		# if request.method == "POST":
+		# 	perfil = editarPerfil(request.POST,request.FILES)
+		# 	if perfil.is_valid():
+		# 		usuarioExtendido.email = perfil.cleaned_data['email']
+		# 		usuarioExtendido.foto = perfil.cleaned_data['foto']
+		# 		if perfil.cleaned_data['password']==perfil.cleaned_data['password2']:
+		# 			usuario.set_password(perfil.cleaned_data['password'])
+		# 			usuarioExtendido.save(update_fields=['email','foto'])
+		# 			usuario.save()
+		# 		return HttpResponseRedirect('/')
+					
+
+		# ctx = {'Perfil':perfil}
+		# return render_to_response('home/editarperfil.html',ctx,context_instance= RequestContext(request))
+
+def actualizar_perfil(request):
+	formulario = editarPerfil()
+	usuario = request.user
+	verificacionUsuario = ''
+	usuarioAlumno = Alumno.objects.get(user=usuario)
+	if request.user.is_authenticated():
+		if request.method == 'POST':
+			formulario = editarPerfil(request.POST, request.FILES)
+			
+			if formulario.is_valid():
+				print formulario.cleaned_data['username']
+				verificacionUsuario = User.objects.all().filter(username=formulario.cleaned_data['username'])
+				if 	verificacionUsuario != '' and usuarioAlumno.user.username != formulario.cleaned_data['username']:
+					info = 'El nombre de usuario ya existe'
+					ctx = {'form':formulario,'informacion':info}
+					return render_to_response('home/updateperfil.html',ctx,context_instance= RequestContext(request))
+				else:
+	 
+					request.user.username = formulario.cleaned_data['username']
+					request.user.email = formulario.cleaned_data['email']
+					usuarioAlumno.foto = formulario.cleaned_data['foto']
+					if formulario.cleaned_data['password']==formulario.cleaned_data['password2']:
+						usuario.set_password(formulario.cleaned_data['password'])
+					usuarioAlumno.save(update_fields=['email','foto'])
+					request.user.save()
+				return HttpResponseRedirect('/editar/perfil/')
+		else:
+			formulario = editarPerfil(initial={'username':usuario.username,
+												'email':usuario.email,
+												'foto':usuarioAlumno.foto})
+		ctx = {'form':formulario}
+	return render_to_response('home/updateperfil.html',ctx,context_instance= RequestContext(request))
+
+
+# # class actualizar_perfil(UpdateView):
+# # 	model = Alumno
+# # 	form_class = editarPerfil
+# # 	template_name='home/updateperfil.html'
+# 	succes_url='home/editarperfil.html'
