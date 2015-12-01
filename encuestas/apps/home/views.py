@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response,render
+from django.shortcuts import render_to_response,render,redirect
 from django.template import RequestContext
 from encuestas.apps.encuestas.models import *
 from encuestas.apps.home.forms import *
@@ -89,6 +89,7 @@ def contacto_view(request):
 
 def login_view(request):
 	mensaje	=	""
+	redirect_to = request.REQUEST.get('next', '')
 	if request.user.is_authenticated():
 		return HttpResponseRedirect('/')
 	else:
@@ -100,12 +101,12 @@ def login_view(request):
 				usuario = authenticate(username=username,password=password)
 				if usuario is not None and usuario.is_active:
 					login(request,usuario)
-					return HttpResponseRedirect('/')
+					return HttpResponseRedirect(redirect_to)
 			else:
 				return HttpResponseRedirect('/login/')
 				mensaje = "Usuario y/o Password incorrecto"
 		form = loginForm()
-		ctx= {'form':form,'mensaje':mensaje}
+		ctx= {'form':form,'mensaje':mensaje, 'next':redirect_to}
 		return render_to_response('home/login.html',ctx,context_instance=RequestContext(request))
 
 def logout_view(request):
@@ -189,10 +190,3 @@ def actualizar_perfil(request):
 												'foto':usuarioAlumno.foto})
 		ctx = {'form':formulario}
 	return render_to_response('home/updateperfil.html',ctx,context_instance= RequestContext(request))
-
-
-# # class actualizar_perfil(UpdateView):
-# # 	model = Alumno
-# # 	form_class = editarPerfil
-# # 	template_name='home/updateperfil.html'
-# 	succes_url='home/editarperfil.html'
