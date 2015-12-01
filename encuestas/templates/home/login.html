@@ -1,7 +1,11 @@
 {% extends 'base.html'%}
 {% block title %} Login {% endblock %}
 {% block content %} 
+{% if next %}
+<form action="/login/?next={{next}}" method="post" >
+{%else%}
 <form action="." method="POST">
+{% endif %}
 	{% csrf_token %}
 	{{ mensaje }}
 

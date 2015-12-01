@@ -400,10 +400,10 @@ def agregar_jefe_de_grupo_view(request,id_grupo):
 	else:
 		return HttpResponseRedirect('/')
 
+@login_required(login_url="/login/")
 def responder_encuesta_view(request,id_encuesta,id_curso):
-
+	
 	if request.user.is_authenticated():  # verifica usuario
-		
 		try:
 			request.user.alumno in Alumno.objects.all()
 		except:
