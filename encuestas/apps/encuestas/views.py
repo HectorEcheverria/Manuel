@@ -420,6 +420,8 @@ def responder_encuesta_view(request,id_encuesta,id_curso):
 		losAlumnos = []
 		rutDelEncuestador = ''
 		elGrupo = ''
+		encuestaRepetida = []
+
 
 		laEncuesta 	= Encuesta.objects.get(id=id_encuesta) # Acá busco la encuesta
 		verificador = laEncuesta.tipoEncuesta
@@ -448,8 +450,6 @@ def responder_encuesta_view(request,id_encuesta,id_curso):
 		if verificador.tipoEncuesta == VariableTipoEncuesta[1]:
 			jefeGrupo = JefesDeGrupo.objects.get(grupo=elGrupo)
 			todosLosEncuestados = [jefeGrupo.alumno]
-
-		print todosLosEncuestados
 
 			
 		if request.method == "POST":	# revisa el método de envío de datos
@@ -493,7 +493,13 @@ def responder_encuesta_view(request,id_encuesta,id_curso):
 				laRespuesta.respuestas 		= preguntasrecibidas
 				laRespuesta.encuesta 		= laEncuesta 
 
-				laRespuesta.save()
+				encuestaRepetida = RespuestaEncuesta.objects.all().filter(rutEncuestado=rutDelEncuestado,rutEncuestador=rutDelEncuestador,encuesta=laEncuesta)
+				print encuestaRepetida
+				if len(encuestaRepetida) > 0:
+					return HttpResponseRedirect('/encuestas/sin/responder')
+				else:
+
+					laRespuesta.save()
 
 				return HttpResponseRedirect('/encuestas/sin/responder')
 			else:
@@ -788,6 +794,7 @@ def datos_enviar_encuesta_curso_view(request):
 	idEncuestaInicial	= ''
 	encuestaElegida 	= ''
 	todasLasEncuestas 	= []
+	idEncuestaElegida	= ''
 
 	if request.user.is_staff or request.user.is_superuser: # verifica usuario
 		# Posteo			
@@ -799,7 +806,24 @@ def datos_enviar_encuesta_curso_view(request):
 				cursoElegido = Curso.objects.get(id=idCursoElegido)
 				idCursoInicial = cursoElegido.id
 				todasLasEncuestas = Encuesta.objects.all().filter(plantilla=False,curso=cursoElegido)
-				print(idCursoInicial)
+
+			if 'Mostrar' in request.POST:	
+				idEncuestaElegida = request.POST['laEncuesta']
+				encuestaElegida = Encuesta.objects.get(id=idEncuestaElegida)
+				cursoElegido 	= Curso.objects.get(id=request.POST['elCurso_oculto'])
+				idEncuestaInicial = encuestaElegida.id
+				print idEncuestaInicial
+				todasLasEncuestas = Encuesta.objects.all().filter(plantilla=False,curso=cursoElegido)
+				idCursoInicial = cursoElegido.id
+
+				ctx = {	'Cursos':muchosCursos,
+						'Encuestas':todasLasEncuestas,
+						'idCursoInicial':idCursoInicial,
+						'idEncuestaInicial':idEncuestaInicial,
+						'LaEncuesta': encuestaElegida,
+						}
+
+				return render_to_response('rencuestas/vistaenvioencuestas.html',ctx,context_instance=RequestContext(request))
 			
 			if 'laEncuesta' in request.POST:
 				idEncuestaElegida		= request.POST['laEncuesta']
@@ -809,9 +833,12 @@ def datos_enviar_encuesta_curso_view(request):
 				idCursoInicial = request.POST['elCurso_oculto']
 				return HttpResponseRedirect('/enviar/encuestas/%s/' %(encuestaElegida.id))
 
+
 		ctx = {	'Cursos':muchosCursos,
 				'Encuestas':todasLasEncuestas,
 				'idCursoInicial':idCursoInicial,
+				'idEncuestaInicial':idEncuestaElegida,
+				'LaEncuesta': encuestaElegida,
 				}
 
 		return render_to_response('rencuestas/vistaenvioencuestas.html',ctx,context_instance=RequestContext(request))
@@ -1365,6 +1392,7 @@ def agregar_alumnos_a_grupo_por_curso_view(request):
 	elGrupo = ''
 	ctx ={	'Alumnos':todosLosAlumnos,
 			'Grupos':todosLosGrupos,
+			'idGrupoSeleccionado':grupoSeleccionado,
 			}
 	if request.user.is_staff or request.user.is_superuser:
 
@@ -1401,7 +1429,7 @@ def agregar_alumnos_a_grupo_por_curso_view(request):
 								}
 
 			if 'Eliminar' in request.POST:
-				print request.POST
+				
 				if 'elGrupo' in request.POST:
 					elGrupo = GruposPorCurso.objects.get(id=request.POST['elGrupo'])
 					idElGrupo = elGrupo.id
@@ -1423,6 +1451,8 @@ def agregar_alumnos_a_grupo_por_curso_view(request):
 
 			else:
 				if 'elGrupo' in request.POST:
+					print 'llego a meter'
+					print request.POST['elGrupo']
 					elGrupo = GruposPorCurso.objects.get(id=request.POST['elGrupo'])
 					idElGrupo = elGrupo.id
 					for i in range(0,valorIdMaximo.id+1):
@@ -1436,7 +1466,7 @@ def agregar_alumnos_a_grupo_por_curso_view(request):
 					integrantes = Alumno.objects.filter(grupo=elGrupo).order_by('apellido', 'nombre')
 					ctx={'Alumnos':todosLosAlumnos,
 						'Grupos':todosLosGrupos,
-						'idGrupoSeleccionado':idElGrupo,
+						'idGrupoSeleccionado':elGrupo.id,
 						'Integrantes':integrantes}
 
 				return render_to_response('encuestas/agregaralumnoagrupoporcurso.html',ctx,context_instance=RequestContext(request))
@@ -2438,10 +2468,11 @@ def revisar_encuestas_view(request):
 					tipoElegido = TipoEncuesta.objects.get(id=request.POST['elTipoEncuesta'])
 					idTipoElegido = tipoElegido.id
 
-					todasLasEncuestas = Encuesta.objects.all().filter(plantilla=False,tipoEncuesta=tipoElegido)
+					todasLasEncuestas = Encuesta.objects.all().filter(plantilla=False,tipoEncuesta=tipoElegido,curso=muchosCursos)
+
 					encuestasTerminadas = encuesta_terminada(idCursoElegido)
-					print encuestasTerminadas
-					for cadaEncuesta in encuestasTerminadas: ## Arreglar cuando cambie Foreing Key con [x for x in lista if lista.algo == algo]
+				
+					for cadaEncuesta in encuestasTerminadas:
 						if cadaEncuesta.tipoEncuesta != tipoElegido:
 							encuestasTerminadas.remove(cadaEncuesta)
 
@@ -2490,8 +2521,6 @@ def revisar_encuestas_view(request):
 			
 			if tipoElegido != '' and tipoElegido.tipoEncuesta == VariableTipoEncuesta[0]:
 				encuesta360 = True
-
-			print encuestasTerminadas
 			ctx = {	'Cursos':muchosCursos,
 					'Encuestas':todasLasEncuestas,
 					'idCursoInicial':idCursoInicial,

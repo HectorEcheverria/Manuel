@@ -25,23 +25,51 @@
 		{% if Encuestas %}
 			<form  action="" method="POST">
 				<input type='hidden' name='elCurso_oculto' value={{idCursoInicial}} />
+				<input type='hidden' name='laEncuesta_oculta' value={{idEncuestaInicial}} />
 
 					{% csrf_token %}
 			    <div class="form-group">
 			    	<label >Encuestas:</label>
 			      	<select class="form-control" id="la_encuesta" name="laEncuesta">
 					{% for cadaEncuesta in Encuestas %}
-						<option value="{{cadaEncuesta.id}}">{{ cadaEncuesta.nombreEncuesta }} {{cadaEncuesta.detalles}}</option>
+						{% if cadaEncuesta.id == idEncuestaInicial %}
+							<option value="{{cadaEncuesta.id}}" selected>{{ cadaEncuesta.nombreEncuesta }} {{cadaEncuesta.detalles}}</option>
+						{% else %}
+							<option value="{{cadaEncuesta.id}}">{{ cadaEncuesta.nombreEncuesta }} {{cadaEncuesta.detalles}}</option>
+						{% endif %}
 					{% endfor %}
 			      </select>
 			      <br>
-			      <p><input class="btn btn-success" type="submit" value="Enviar"></p>
-			    </div>
+			      <p><input class="btn btn-success" type="submit" value="Enviar">
+			      <input class="btn btn-info" type="submit" name='Mostrar' value="Mostrar Encuesta"></p>
+			    </div> 
 			</form>
 		{% else %}
+		{% if LaEncuesta %}
+		{% else %}
 			No existen Encuestas
+		{% endif %}
 		{% endif %} 
 
+		
+		{% if LaEncuesta %}
+		<label>Nombre de la Encuesta</label>
+			{{ LaEncuesta.nombreEncuesta }}<br>
+		<label>Descripción de la pregunta</label>
+			{{ LaEncuesta.descripcion }}<br>
+		
+			{% for cadaPregunta in LaEncuesta.preguntas.all %}
+			<label>Pregunta número  {{ forloop.counter }}</label>
+			<br>
+				{{ cadaPregunta }}<br>
+			{% endfor %}
+		<label>Módulo de la pregunta</label>
+			{{ LaEncuesta.modulo }}<br>
+		<label>Detalles (instacia)</label>
+			{{ LaEncuesta.detalles }}<br>
+		<label>Fecha de creación de la Encuesta</label>
+			{{ LaEncuesta.fechaCreacion }}<br>
+		{% endif %}
 	{% else %}
 		No existen cursos
 	{% endif %}
