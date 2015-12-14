@@ -44,6 +44,7 @@ urlpatterns = patterns('encuestas.apps.encuestas.views',
 	url(r'^revisar/encuestas/$','revisar_encuestas_view', name='vista_revisar_encuestas'),
 	url(r'^feedback/profesor/grafico/(?P<id_encuesta>.*)/(?P<id_grupo>.*)/$','datos_grafico_profesor_view', name='vista_datos_grafico_profesor'),
 	url(r'^resultados/encuesta/liderazgo/(?P<id_encuesta>.*)/(?P<id_curso>.*)/$','encuesta_liderazgo_view', name='vista_encuesta_liderago'),
+	url(r'^importar/datos/$','importar_datos_csv', name='vista_importar_datos'),
 	
 
 

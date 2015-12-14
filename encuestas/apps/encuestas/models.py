@@ -1,15 +1,21 @@
 # -*- encoding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import User
+import unicodedata
+import string
+ 
+ 
+def content_file_name(instance, filename):
+    nombre = instance.nombre+instance.apellido+'.'+filename.split('.')[-1]
+    nombre = nombre.replace (" ", "")
+    nombre = ''.join(x for x in unicodedata.normalize('NFKD', nombre) if x in string.ascii_letters).lower()
+    return '/'.join(['MultimediaData/Usuarios', nombre, nombre])
 
 class Profesor(models.Model):
 
-	def url(self,filename):
-		ruta	=	"MultimediaData/Usuarios/%s/%s"%(self.user.username, filename)
-		return ruta
-
+	
 	user			= models.OneToOneField(User, unique=True)
-	foto			= models.ImageField(upload_to=url,null=True,blank=True)
+	foto			= models.ImageField(upload_to=content_file_name,null=True,blank=True)
 	nombre 			= models.CharField(max_length=100)
 	apellido		= models.CharField(max_length=100)
 	rut 			= models.CharField(max_length=100,unique=True)
@@ -88,12 +94,8 @@ class GruposPorCurso(models.Model):
 		
 class Alumno(models.Model):
 
-	def url(self,filename):
-		ruta	=	"MultimediaData/Usuarios/%s/%s"%(self.user.username, filename)
-		return ruta
-
 	user			= models.OneToOneField(User, unique=True)
-	foto			= models.ImageField(upload_to=url,null=True,blank=True)
+	foto			= models.ImageField(upload_to=content_file_name,null=True,blank=True)
 	nombre         	= models.CharField(max_length=200)
 	apellido		= models.CharField(max_length=200)
 	rut 			= models.CharField(max_length=200,unique=True)

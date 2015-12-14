@@ -7,7 +7,6 @@ from django.http import HttpResponseRedirect
 from django.core.mail import EmailMultiAlternatives
 from django.views.generic.edit import UpdateView
 
-
 def index_view(request):
 	encuestas = Encuesta.objects.all()
 	laEncuesta = ''
@@ -131,35 +130,6 @@ def editar_perfil_view(request):
 	return HttpResponseRedirect('/')	
 	
 
-		# usuario = request.user
-		# losProfesores = Profesor.objects.filter(user=usuario)
-		# losAlumnos = Alumno.objects.filter(user=usuario)
-		# usuarioExtendido =''
-		# tipo=''
-		# if len(losProfesores) == 1:	
-		# 	usuarioExtendido = losProfesores[0]
-		# 	tipo='profesor'
-		# elif len(losAlumnos) == 1:
-		# 	usuarioExtendido = losAlumnos[0]
-		# 	tipo='profesor'
-		# else:
-		# 	return HttpResponseRedirect('/')
-
-		# if request.method == "POST":
-		# 	perfil = editarPerfil(request.POST,request.FILES)
-		# 	if perfil.is_valid():
-		# 		usuarioExtendido.email = perfil.cleaned_data['email']
-		# 		usuarioExtendido.foto = perfil.cleaned_data['foto']
-		# 		if perfil.cleaned_data['password']==perfil.cleaned_data['password2']:
-		# 			usuario.set_password(perfil.cleaned_data['password'])
-		# 			usuarioExtendido.save(update_fields=['email','foto'])
-		# 			usuario.save()
-		# 		return HttpResponseRedirect('/')
-					
-
-		# ctx = {'Perfil':perfil}
-		# return render_to_response('home/editarperfil.html',ctx,context_instance= RequestContext(request))
-
 def actualizar_perfil(request):
 	formulario = editarPerfil()
 	usuario = request.user
@@ -173,7 +143,6 @@ def actualizar_perfil(request):
 			formulario = editarPerfil(request.POST, request.FILES)
 			
 			if formulario.is_valid():
-				print formulario.cleaned_data['username']
 				verificacionUsuario = User.objects.all().filter(username=formulario.cleaned_data['username'])
 				if 	verificacionUsuario != '' and usuarioAlumno.user.username != formulario.cleaned_data['username']:
 					info = 'El nombre de usuario ya existe'

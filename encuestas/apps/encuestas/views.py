@@ -9,6 +9,7 @@ from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail, send_mass_mail
+from django.core.files import File
 from django.conf import settings
 import re  # regular expresion
 import matplotlib 
@@ -18,6 +19,7 @@ from pylab import *
 import PIL
 import PIL.Image
 import StringIO
+import csv
 
 VariableTipoEncuesta = ['Encuesta 360','Encuesta Liderazgo']
 
@@ -2853,3 +2855,61 @@ def datos_grafico_profesor_curso_view(request,id_encuesta,id_curso):
 		return render(request,'rencuestas/vistagraficosporgrupo.html',contexto)
 	else:
 		return HttpResponseRedirect('/')				
+
+def agregar_alumno_por_archivo(elNombre,elApellido,elRut,elEmail):
+
+	todosLosAlumnos = Alumno.objects.all()
+	todosLosUsuarios = User.objects.all()
+	todosLosProfesores = Profesor.objects.all()
+	existeUsuario = False
+	existeRut	= False
+	datoRepetido = ''
+	a = Alumno()
+	a.nombre 	= elNombre
+	a.apellido 	= elApellido
+	a.rut 		= elRut
+	a.email		= elEmail
+	a.status	= True
+	username	= elNombre+elApellido
+	for cadaAlumno in todosLosAlumnos:
+		if cadaAlumno.rut == a.rut:
+			existeRut = True
+			break
+	if existeRut == False:
+		for cadaProfesor in todosLosProfesores:
+			if cadaProfesor.rut == a.rut:
+				existeRut = True
+				break
+	for cadaUsuario in todosLosUsuarios:
+		if cadaUsuario.username == username:
+			existeUsuario = True
+			break # Dance
+	if existeRut == False and existeUsuario == False:
+		user = User.objects.create_user(username, elEmail, elRut)
+		a.user = user
+		a.save()
+	else:
+		if existeRut == True:
+			datoRepetido = 'RUT '
+		if existeUsuario == True:
+			datoRepetido = datoRepetido + 'y usuario '
+		return ('Existe ' + datoRepetido + 'de ' + username)
+	return 'No esta'
+
+def importar_datos_csv(request):
+	erroresSubida = []
+	ctx = {'Estado':erroresSubida}
+	if request.user.is_staff or request.user.is_superuser:
+		
+		estado = ''
+		if request.method=="POST":
+			if request.FILES:
+				csvfile = request.FILES['csv_file']
+				reader = csv.reader(csvfile)
+				for row in reader:
+					estado = agregar_alumno_por_archivo(row[0],row[1],row[2],row[3])
+					if estado != 'No esta':
+						erroresSubida.append(estado)
+				csvfile.close()		
+	return render_to_response('rencuestas/importardatos.html',ctx,context_instance=RequestContext(request))
+	
