@@ -117,28 +117,7 @@
 						
 						&nbsp Salir<a href="{% url 'vista_logout' %}"  <span class="glyphicon glyphicon-log-out" ></span></a></div>
 
-					<p class="navbar-text pull-right">
-					{% if user.profesor %}
-					Encuesta Seleccionada:
-					{% if request.session.nombreEncuestaSeleccionada %}
-
-						{{ request.session.nombreEncuestaSeleccionada }}
-	
-
-					{% else %}
-						No ha seleccionado Encuesta
-					{% endif %}</p>
-					<p class="navbar-text pull-right">
-					Curso Seleccionado:
-					{% if request.session.nombreCursoSeleccionado %}
-
-						{{ request.session.nombreCursoSeleccionado }}
-	
-
-					{% else %}
-						No ha seleccionado Curso
-					{% endif %}</p>
-					{% endif %}
+					
 			</div>
 			</div>
 			{% else %}

@@ -1697,7 +1697,7 @@ def modulacion_alumno(id_alumno,id_grupo,id_encuesta):
 	promediosAlumnos = []
 	cantidadPreguntas = len(laEncuesta.preguntas.all())
 	promediosElAlumno = []
-	modulador = laEncuesta.modulo 
+	modulador = abs(laEncuesta.modulo) 
 
 	promediosElAlumno2 =[]
 	promediosPreguntas2 = []
@@ -1741,23 +1741,17 @@ def modulacion_alumno(id_alumno,id_grupo,id_encuesta):
 
 	### Parte de Módulos 
 	promedioDatosPreguntas = []
-	# print('Promedio alumnos')
-	# print(promediosAlumnos)
+
 	for numeroDePregunta in range(cantidadPreguntas):
 		promedioPorPregunta = 0
 		for r in promediosAlumnos:
 			if numeroDePregunta in r:
-				# print ('Promedio por nota:')
-				# print r[numeroDePregunta]
 				promedioPorPregunta = promedioPorPregunta + r[numeroDePregunta]
 		promedioPregunta = {}
 		promedioPregunta[numeroDePregunta] = promedioPorPregunta/len(companerosDeGrupo)
 		promediosPreguntas2.append(round(promedioPorPregunta/len(companerosDeGrupo),3))
-		# print promedioPregunta[numeroDePregunta]
 		promedioDatosPreguntas.append(promedioPregunta)
 
-		# print('El promedio de las preguntas es:')
-		# print promedioDatosPreguntas
 		promedioGrupo = 0
 		for cadaPromedio in promedioDatosPreguntas:
 			for x in range(cantidadPreguntas):
@@ -2192,7 +2186,6 @@ def datos_grafico_profesor_view(request,id_encuesta,id_grupo):
 		modulosParaGraficos = []	
 
 		if request.method == 'POST':
-			print ('Entro \n\n\n\n')
 			for i in range(0,valorIdMaximo.id+1):
 				if '%s'%i in request.POST:
 					elAlumno = Alumno.objects.get(id=i)
@@ -2422,16 +2415,14 @@ def encuesta_no_terminada_con_porcentaje_alumnos(id_encuesta):
 
 def enviar_encuestas_alumno(mensaje,id_alumno):
 
-	if request.user.is_staff or request.user.is_superuser:
+	elMensaje = mensaje
+	elAlumno = Alumno.objects.get(id=id_alumno)
+	correo = [elAlumno.email]
 
-		elMensaje = mensaje
-		elAlumno = Alumno.objects.get(id=id_alumno)
-		correo = [elAlumno.email]
+	elMensaje = elMensaje + '\n %s/encuestas/sin/responder/' %(settings.URL_GEN)
+	send_mail('Encuesta 360', elMensaje , 'contacto.encuestas.2015@gmail.com', correo )
 
-		elMensaje = elMensaje + '\n %s/encuestas/sin/responder/' %(settings.URL_GEN)
-		send_mail('Encuesta 360', elMensaje , 'contacto.encuestas.2015@gmail.com', correo )
-	else:
-		return HttpResponseRedirect('/')
+	return HttpResponseRedirect('/')
 
 def revisar_encuestas_view(request):
 	usuario 			= request.user
@@ -2453,6 +2444,7 @@ def revisar_encuestas_view(request):
 	encuesta360 = False
 	diccionario = {}
 	tipoElegido = ''
+	tipoDeEncuesta = TipoEncuesta.objects.all()
 
 	if request.user.is_authenticated():  # verifica usuario
 		# Posteo			
@@ -2502,7 +2494,6 @@ def revisar_encuestas_view(request):
 						if bandera == False:
 							encuestasNoTerminadas.append(cadaEncuesta)
 							if len(encuesta_no_terminada_con_porcentaje_alumnos(cadaEncuesta.id)) != 0:
-								#infoEncuestasNoTerminadas.append(encuesta_no_terminada_con_porcentaje_alumnos(cadaEncuesta.id))
 								infoEncuestasNoTerminadas = encuesta_no_terminada_con_porcentaje_alumnos(cadaEncuesta.id)
 								diccionario[cadaEncuesta] = infoEncuestasNoTerminadas
 
@@ -2513,8 +2504,6 @@ def revisar_encuestas_view(request):
 			if 'laEncuesta' in request.POST:
 				encuestaObtenida = Encuesta.objects.get(id=request.POST['laEncuesta'])
 				for llave,valor in diccionario.iteritems():
-					
-
 					if llave == encuestaObtenida:
 						for cadaAlumno,porcentaje in valor.iteritems():
 							mensaje = "Usted no ha terminado de responder la encuesta 360"
