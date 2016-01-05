@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %} Importar datos {% endblock %}
+{% block content %} 
+<form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+
+    <input type="file" name="csv_file" />
+    <input type="submit" value="Upload" />
+
+</form>
+{% if Estado %}
+<label> Los siguientes alumnos no pudieron ser ingresados</label><br>
+	{% for cadaError in Estado%}
+		{{cadaError}}<br>
+	{% endfor %}
+{% endif %}
+{% endblock %}
